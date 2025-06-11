@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cluster-monitor-server.fullname" . }}-http
+  labels:
+    {{- include "cluster-monitor-server.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.httpPort }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "cluster-monitor-server.selectorLabels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cluster-monitor-server.fullname" . }}-grpc
+  labels:
+    {{- include "cluster-monitor-server.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+  - name: grpc
+    port: {{ .Values.grpcPort }}
+    protocol: TCP
+    targetPort: grpc
+  selector:
+    {{- include "cluster-monitor-server.selectorLabels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cluster-monitor-server.fullname" . }}-worker-service-grpc
+  labels:
+    {{- include "cluster-monitor-server.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.global.workerServiceGrpcService.annotations | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+  - name: ws-grpc
+    port: {{ .Values.workerServiceGrpcPort }}
+    protocol: TCP
+    targetPort: ws-grpc
+  selector:
+    {{- include "cluster-monitor-server.selectorLabels" . | nindent 4 }}

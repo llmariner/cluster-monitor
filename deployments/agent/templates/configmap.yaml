@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "cluster-monitor-agent.fullname" . }}
+  labels:
+    {{- include "cluster-monitor-agent.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    componentStatusSender:
+      enable: {{ .Values.componentStatusSender.enable }}
+      name: {{ .Values.componentStatusSender.name }}
+      initialDelay: {{ .Values.componentStatusSender.initialDelay }}
+      interval: {{ .Values.componentStatusSender.interval }}
+      clusterManagerServerWorkerServiceAddr: {{ .Values.global.worker.controlPlaneAddr | default .Values.componentStatusSender.clusterManagerServerWorkerServiceAddr }}
+    worker:
+      tls:
+        enable: {{ .Values.global.worker.tls.enable }}
+    kubernetesManager:
+      enableLeaderElection: {{ .Values.kubernetesManager.enableLeaderElection }}
+      leaderElectionID: {{ include "cluster-monitor-agent.fullname" . }}
+      metricsBindAddress: {{ .Values.kubernetesManager.metricsBindAddress }}
+      healthBindAddress: {{ .Values.kubernetesManager.healthBindAddress }}
+      pprofBindAddress: {{ .Values.kubernetesManager.pprofBindAddress }}

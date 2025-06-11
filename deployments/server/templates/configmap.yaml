@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "cluster-monitor-server.fullname" . }}
+  labels:
+    {{- include "cluster-monitor-server.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    httpPort: {{ .Values.httpPort }}
+    grpcPort: {{ .Values.grpcPort }}
+    workerServiceGrpcPort: {{ .Values.workerServiceGrpcPort }}
+    database:
+      host: {{ required "global.database.host is required" .Values.global.database.host }}
+      port: {{ required "global.database.host is required" .Values.global.database.port }}
+      database: {{ .Values.database.database }}
+      username: {{ required "global.database.username is required" .Values.global.database.username }}
+      passwordEnvName: DB_PASSWORD
+      ssl:
+        mode: {{ .Values.global.database.ssl.mode }}
+        rootCert: {{ .Values.global.database.ssl.rootCert }}
+      createDatabase: {{ .Values.global.database.createDatabase }}
+      originalDatabase: {{ .Values.global.database.originalDatabase }}
+    auth:
+      enable: {{ .Values.global.auth.enable }}
+      rbacInternalServerAddr: {{ .Values.global.auth.rbacInternalServerAddr }}
