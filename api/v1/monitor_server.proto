@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package llmariner.clutsermonitor.server.v1;
+package llmariner.clustermonitor.server.v1;
 
 import "google/api/annotations.proto";
 

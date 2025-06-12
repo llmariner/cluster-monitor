@@ -31,7 +31,7 @@ func NewClusterMonitorServiceClient(cc grpc.ClientConnInterface) ClusterMonitorS
 
 func (c *clusterMonitorServiceClient) Dummy(ctx context.Context, in *DummyRequest, opts ...grpc.CallOption) (*DummyResponse, error) {
 	out := new(DummyResponse)
-	err := c.cc.Invoke(ctx, "/llmariner.clutsermonitor.server.v1.ClusterMonitorService/Dummy", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/llmariner.clustermonitor.server.v1.ClusterMonitorService/Dummy", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func _ClusterMonitorService_Dummy_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/llmariner.clutsermonitor.server.v1.ClusterMonitorService/Dummy",
+		FullMethod: "/llmariner.clustermonitor.server.v1.ClusterMonitorService/Dummy",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ClusterMonitorServiceServer).Dummy(ctx, req.(*DummyRequest))
@@ -88,7 +88,7 @@ func _ClusterMonitorService_Dummy_Handler(srv interface{}, ctx context.Context, 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ClusterMonitorService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "llmariner.clutsermonitor.server.v1.ClusterMonitorService",
+	ServiceName: "llmariner.clustermonitor.server.v1.ClusterMonitorService",
 	HandlerType: (*ClusterMonitorServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
