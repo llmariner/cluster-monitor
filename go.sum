@@ -86,8 +86,6 @@ github.com/llmariner/cluster-manager v1.6.0 h1:CrB3wW/fkzLJpBCW6QpdSUaaSp2XMBfhH
 github.com/llmariner/cluster-manager v1.6.0/go.mod h1:xGxwlPeeVCBZE5jB4t2Jmq76SfIfRGZAXReqefcGXbw=
 github.com/llmariner/common v0.15.0 h1:KkDDKXcFPMlCNOZG1vK1nKd05FYagf7CRmPtRO42htg=
 github.com/llmariner/common v0.15.0/go.mod h1:nt793i6mCLc3tpIA223EvxHLuHa/8Ft+oa4h8m5EWKE=
-github.com/llmariner/model-manager v1.18.1 h1:x5gTIMY9KIb9LysvWchskiPZvh8KTmbS14wR9yH8Mfw=
-github.com/llmariner/model-manager v1.18.1/go.mod h1:IbbSLHi25WnKDedgdsZ3bv8N18bm2bYT+pXK3VW0J10=
 github.com/llmariner/rbac-manager v1.15.1 h1:k7hobThg/mI6mQYgWjViY86lCF7Ra8Q46MMoeMXv3VI=
 github.com/llmariner/rbac-manager v1.15.1/go.mod h1:3G5lJgV56rd8h4NNucWoHjF+3tY0lIzwznYhVVkUVUg=
 github.com/mailru/easyjson v0.7.7 h1:UGYAvKxe3sBsEDzO8ZeWOSlIQfWFlxbzLZe7hwFURr0=

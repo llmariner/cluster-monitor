@@ -61,7 +61,7 @@ func RegisterClusterMonitorServiceHandlerServer(ctx context.Context, mux *runtim
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/llmariner.clutsermonitor.server.v1.ClusterMonitorService/Dummy", runtime.WithHTTPPathPattern("/v1/dummy"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/llmariner.clustermonitor.server.v1.ClusterMonitorService/Dummy", runtime.WithHTTPPathPattern("/v1/dummy"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -123,7 +123,7 @@ func RegisterClusterMonitorServiceHandlerClient(ctx context.Context, mux *runtim
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/llmariner.clutsermonitor.server.v1.ClusterMonitorService/Dummy", runtime.WithHTTPPathPattern("/v1/dummy"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/llmariner.clustermonitor.server.v1.ClusterMonitorService/Dummy", runtime.WithHTTPPathPattern("/v1/dummy"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

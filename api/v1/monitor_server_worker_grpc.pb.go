@@ -3,7 +3,10 @@
 package v1
 
 import (
+	context "context"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -15,6 +18,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ClusterMonitorWorkerServiceClient interface {
+	SendClusterTelemetry(ctx context.Context, in *SendClusterTelemetryRequest, opts ...grpc.CallOption) (*SendClusterTelemetryResponse, error)
 }
 
 type clusterMonitorWorkerServiceClient struct {
@@ -25,10 +29,20 @@ func NewClusterMonitorWorkerServiceClient(cc grpc.ClientConnInterface) ClusterMo
 	return &clusterMonitorWorkerServiceClient{cc}
 }
 
+func (c *clusterMonitorWorkerServiceClient) SendClusterTelemetry(ctx context.Context, in *SendClusterTelemetryRequest, opts ...grpc.CallOption) (*SendClusterTelemetryResponse, error) {
+	out := new(SendClusterTelemetryResponse)
+	err := c.cc.Invoke(ctx, "/llmariner.clustermonitor.server.v1.ClusterMonitorWorkerService/SendClusterTelemetry", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ClusterMonitorWorkerServiceServer is the server API for ClusterMonitorWorkerService service.
 // All implementations must embed UnimplementedClusterMonitorWorkerServiceServer
 // for forward compatibility
 type ClusterMonitorWorkerServiceServer interface {
+	SendClusterTelemetry(context.Context, *SendClusterTelemetryRequest) (*SendClusterTelemetryResponse, error)
 	mustEmbedUnimplementedClusterMonitorWorkerServiceServer()
 }
 
@@ -36,6 +50,9 @@ type ClusterMonitorWorkerServiceServer interface {
 type UnimplementedClusterMonitorWorkerServiceServer struct {
 }
 
+func (UnimplementedClusterMonitorWorkerServiceServer) SendClusterTelemetry(context.Context, *SendClusterTelemetryRequest) (*SendClusterTelemetryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendClusterTelemetry not implemented")
+}
 func (UnimplementedClusterMonitorWorkerServiceServer) mustEmbedUnimplementedClusterMonitorWorkerServiceServer() {
 }
 
@@ -50,13 +67,36 @@ func RegisterClusterMonitorWorkerServiceServer(s grpc.ServiceRegistrar, srv Clus
 	s.RegisterService(&ClusterMonitorWorkerService_ServiceDesc, srv)
 }
 
+func _ClusterMonitorWorkerService_SendClusterTelemetry_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendClusterTelemetryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClusterMonitorWorkerServiceServer).SendClusterTelemetry(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/llmariner.clustermonitor.server.v1.ClusterMonitorWorkerService/SendClusterTelemetry",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClusterMonitorWorkerServiceServer).SendClusterTelemetry(ctx, req.(*SendClusterTelemetryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ClusterMonitorWorkerService_ServiceDesc is the grpc.ServiceDesc for ClusterMonitorWorkerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ClusterMonitorWorkerService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "llmariner.clutsermonitor.server.v1.ClusterMonitorWorkerService",
+	ServiceName: "llmariner.clustermonitor.server.v1.ClusterMonitorWorkerService",
 	HandlerType: (*ClusterMonitorWorkerServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams:     []grpc.StreamDesc{},
-	Metadata:    "api/v1/monitor_server_worker.proto",
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "SendClusterTelemetry",
+			Handler:    _ClusterMonitorWorkerService_SendClusterTelemetry_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "api/v1/monitor_server_worker.proto",
 }

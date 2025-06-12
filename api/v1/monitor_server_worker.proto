@@ -1,8 +1,36 @@
 syntax = "proto3";
 
-package llmariner.clutsermonitor.server.v1;
+package llmariner.clustermonitor.server.v1;
 
 option go_package = "github.com/llmariner/cluster-monitor/api/v1";
 
+
+message SendClusterTelemetryRequest {
+  message Payload {
+    oneof message_kind {
+      ClusterSnapshot cluster_snapshot = 1;
+      // TODO(kenji): Add more (e.g., node GPU utilization)
+    }
+  }
+  repeated Payload payloads = 1;
+}
+
+message ClusterSnapshot {
+  message Node {
+    string name = 1;
+    string gpu_count = 2;
+    // TODO(kenji): GPU architecture and other information.
+  }
+
+  repeated Node nodes = 1;
+
+  // TODO(kenji): Add more (e.g., GPU workload information).
+
+}
+
+message SendClusterTelemetryResponse {
+}
+
 service ClusterMonitorWorkerService {
+  rpc SendClusterTelemetry(SendClusterTelemetryRequest) returns (SendClusterTelemetryResponse);
 }

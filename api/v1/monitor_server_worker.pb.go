@@ -10,6 +10,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -19,28 +20,345 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type SendClusterTelemetryRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Payloads []*SendClusterTelemetryRequest_Payload `protobuf:"bytes,1,rep,name=payloads,proto3" json:"payloads,omitempty"`
+}
+
+func (x *SendClusterTelemetryRequest) Reset() {
+	*x = SendClusterTelemetryRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_v1_monitor_server_worker_proto_msgTypes[0]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SendClusterTelemetryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SendClusterTelemetryRequest) ProtoMessage() {}
+
+func (x *SendClusterTelemetryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_monitor_server_worker_proto_msgTypes[0]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SendClusterTelemetryRequest.ProtoReflect.Descriptor instead.
+func (*SendClusterTelemetryRequest) Descriptor() ([]byte, []int) {
+	return file_api_v1_monitor_server_worker_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *SendClusterTelemetryRequest) GetPayloads() []*SendClusterTelemetryRequest_Payload {
+	if x != nil {
+		return x.Payloads
+	}
+	return nil
+}
+
+type ClusterSnapshot struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Nodes []*ClusterSnapshot_Node `protobuf:"bytes,1,rep,name=nodes,proto3" json:"nodes,omitempty"`
+}
+
+func (x *ClusterSnapshot) Reset() {
+	*x = ClusterSnapshot{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_v1_monitor_server_worker_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ClusterSnapshot) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClusterSnapshot) ProtoMessage() {}
+
+func (x *ClusterSnapshot) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_monitor_server_worker_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClusterSnapshot.ProtoReflect.Descriptor instead.
+func (*ClusterSnapshot) Descriptor() ([]byte, []int) {
+	return file_api_v1_monitor_server_worker_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ClusterSnapshot) GetNodes() []*ClusterSnapshot_Node {
+	if x != nil {
+		return x.Nodes
+	}
+	return nil
+}
+
+type SendClusterTelemetryResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *SendClusterTelemetryResponse) Reset() {
+	*x = SendClusterTelemetryResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_v1_monitor_server_worker_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SendClusterTelemetryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SendClusterTelemetryResponse) ProtoMessage() {}
+
+func (x *SendClusterTelemetryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_monitor_server_worker_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SendClusterTelemetryResponse.ProtoReflect.Descriptor instead.
+func (*SendClusterTelemetryResponse) Descriptor() ([]byte, []int) {
+	return file_api_v1_monitor_server_worker_proto_rawDescGZIP(), []int{2}
+}
+
+type SendClusterTelemetryRequest_Payload struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Types that are assignable to MessageKind:
+	//
+	//	*SendClusterTelemetryRequest_Payload_ClusterSnapshot
+	MessageKind isSendClusterTelemetryRequest_Payload_MessageKind `protobuf_oneof:"message_kind"`
+}
+
+func (x *SendClusterTelemetryRequest_Payload) Reset() {
+	*x = SendClusterTelemetryRequest_Payload{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_v1_monitor_server_worker_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SendClusterTelemetryRequest_Payload) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SendClusterTelemetryRequest_Payload) ProtoMessage() {}
+
+func (x *SendClusterTelemetryRequest_Payload) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_monitor_server_worker_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SendClusterTelemetryRequest_Payload.ProtoReflect.Descriptor instead.
+func (*SendClusterTelemetryRequest_Payload) Descriptor() ([]byte, []int) {
+	return file_api_v1_monitor_server_worker_proto_rawDescGZIP(), []int{0, 0}
+}
+
+func (m *SendClusterTelemetryRequest_Payload) GetMessageKind() isSendClusterTelemetryRequest_Payload_MessageKind {
+	if m != nil {
+		return m.MessageKind
+	}
+	return nil
+}
+
+func (x *SendClusterTelemetryRequest_Payload) GetClusterSnapshot() *ClusterSnapshot {
+	if x, ok := x.GetMessageKind().(*SendClusterTelemetryRequest_Payload_ClusterSnapshot); ok {
+		return x.ClusterSnapshot
+	}
+	return nil
+}
+
+type isSendClusterTelemetryRequest_Payload_MessageKind interface {
+	isSendClusterTelemetryRequest_Payload_MessageKind()
+}
+
+type SendClusterTelemetryRequest_Payload_ClusterSnapshot struct {
+	ClusterSnapshot *ClusterSnapshot `protobuf:"bytes,1,opt,name=cluster_snapshot,json=clusterSnapshot,proto3,oneof"` // TODO(kenji): Add more (e.g., node GPU utilization)
+}
+
+func (*SendClusterTelemetryRequest_Payload_ClusterSnapshot) isSendClusterTelemetryRequest_Payload_MessageKind() {
+}
+
+type ClusterSnapshot_Node struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Name     string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	GpuCount string `protobuf:"bytes,2,opt,name=gpu_count,json=gpuCount,proto3" json:"gpu_count,omitempty"` // TODO(kenji): GPU architecture and other information.
+}
+
+func (x *ClusterSnapshot_Node) Reset() {
+	*x = ClusterSnapshot_Node{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_v1_monitor_server_worker_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ClusterSnapshot_Node) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClusterSnapshot_Node) ProtoMessage() {}
+
+func (x *ClusterSnapshot_Node) ProtoReflect() protoreflect.Message {
+	mi := &file_api_v1_monitor_server_worker_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClusterSnapshot_Node.ProtoReflect.Descriptor instead.
+func (*ClusterSnapshot_Node) Descriptor() ([]byte, []int) {
+	return file_api_v1_monitor_server_worker_proto_rawDescGZIP(), []int{1, 0}
+}
+
+func (x *ClusterSnapshot_Node) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ClusterSnapshot_Node) GetGpuCount() string {
+	if x != nil {
+		return x.GpuCount
+	}
+	return ""
+}
+
 var File_api_v1_monitor_server_worker_proto protoreflect.FileDescriptor
 
 var file_api_v1_monitor_server_worker_proto_rawDesc = []byte{
 	0x0a, 0x22, 0x61, 0x70, 0x69, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x6f, 0x6e, 0x69, 0x74, 0x6f, 0x72,
 	0x5f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5f, 0x77, 0x6f, 0x72, 0x6b, 0x65, 0x72, 0x2e, 0x70,
 	0x72, 0x6f, 0x74, 0x6f, 0x12, 0x22, 0x6c, 0x6c, 0x6d, 0x61, 0x72, 0x69, 0x6e, 0x65, 0x72, 0x2e,
-	0x63, 0x6c, 0x75, 0x74, 0x73, 0x65, 0x72, 0x6d, 0x6f, 0x6e, 0x69, 0x74, 0x6f, 0x72, 0x2e, 0x73,
-	0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x32, 0x1d, 0x0a, 0x1b, 0x43, 0x6c, 0x75, 0x73,
+	0x63, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x6d, 0x6f, 0x6e, 0x69, 0x74, 0x6f, 0x72, 0x2e, 0x73,
+	0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x22, 0xff, 0x01, 0x0a, 0x1b, 0x53, 0x65, 0x6e,
+	0x64, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x54, 0x65, 0x6c, 0x65, 0x6d, 0x65, 0x74, 0x72,
+	0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x63, 0x0a, 0x08, 0x70, 0x61, 0x79, 0x6c,
+	0x6f, 0x61, 0x64, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x47, 0x2e, 0x6c, 0x6c, 0x6d,
+	0x61, 0x72, 0x69, 0x6e, 0x65, 0x72, 0x2e, 0x63, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x6d, 0x6f,
+	0x6e, 0x69, 0x74, 0x6f, 0x72, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e,
+	0x53, 0x65, 0x6e, 0x64, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x54, 0x65, 0x6c, 0x65, 0x6d,
+	0x65, 0x74, 0x72, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x2e, 0x50, 0x61, 0x79, 0x6c,
+	0x6f, 0x61, 0x64, 0x52, 0x08, 0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x73, 0x1a, 0x7b, 0x0a,
+	0x07, 0x50, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x12, 0x60, 0x0a, 0x10, 0x63, 0x6c, 0x75, 0x73,
+	0x74, 0x65, 0x72, 0x5f, 0x73, 0x6e, 0x61, 0x70, 0x73, 0x68, 0x6f, 0x74, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x33, 0x2e, 0x6c, 0x6c, 0x6d, 0x61, 0x72, 0x69, 0x6e, 0x65, 0x72, 0x2e, 0x63,
+	0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x6d, 0x6f, 0x6e, 0x69, 0x74, 0x6f, 0x72, 0x2e, 0x73, 0x65,
+	0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x53,
+	0x6e, 0x61, 0x70, 0x73, 0x68, 0x6f, 0x74, 0x48, 0x00, 0x52, 0x0f, 0x63, 0x6c, 0x75, 0x73, 0x74,
+	0x65, 0x72, 0x53, 0x6e, 0x61, 0x70, 0x73, 0x68, 0x6f, 0x74, 0x42, 0x0e, 0x0a, 0x0c, 0x6d, 0x65,
+	0x73, 0x73, 0x61, 0x67, 0x65, 0x5f, 0x6b, 0x69, 0x6e, 0x64, 0x22, 0x9a, 0x01, 0x0a, 0x0f, 0x43,
+	0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x53, 0x6e, 0x61, 0x70, 0x73, 0x68, 0x6f, 0x74, 0x12, 0x4e,
+	0x0a, 0x05, 0x6e, 0x6f, 0x64, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x38, 0x2e,
+	0x6c, 0x6c, 0x6d, 0x61, 0x72, 0x69, 0x6e, 0x65, 0x72, 0x2e, 0x63, 0x6c, 0x75, 0x73, 0x74, 0x65,
+	0x72, 0x6d, 0x6f, 0x6e, 0x69, 0x74, 0x6f, 0x72, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e,
+	0x76, 0x31, 0x2e, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x53, 0x6e, 0x61, 0x70, 0x73, 0x68,
+	0x6f, 0x74, 0x2e, 0x4e, 0x6f, 0x64, 0x65, 0x52, 0x05, 0x6e, 0x6f, 0x64, 0x65, 0x73, 0x1a, 0x37,
+	0x0a, 0x04, 0x4e, 0x6f, 0x64, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x1b, 0x0a, 0x09, 0x67, 0x70,
+	0x75, 0x5f, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x67,
+	0x70, 0x75, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x22, 0x1e, 0x0a, 0x1c, 0x53, 0x65, 0x6e, 0x64, 0x43,
+	0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x54, 0x65, 0x6c, 0x65, 0x6d, 0x65, 0x74, 0x72, 0x79, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0xb9, 0x01, 0x0a, 0x1b, 0x43, 0x6c, 0x75, 0x73,
 	0x74, 0x65, 0x72, 0x4d, 0x6f, 0x6e, 0x69, 0x74, 0x6f, 0x72, 0x57, 0x6f, 0x72, 0x6b, 0x65, 0x72,
-	0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x42, 0x2d, 0x5a, 0x2b, 0x67, 0x69, 0x74, 0x68, 0x75,
-	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6c, 0x6c, 0x6d, 0x61, 0x72, 0x69, 0x6e, 0x65, 0x72, 0x2f,
-	0x63, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x2d, 0x6d, 0x6f, 0x6e, 0x69, 0x74, 0x6f, 0x72, 0x2f,
-	0x61, 0x70, 0x69, 0x2f, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x99, 0x01, 0x0a, 0x14, 0x53, 0x65, 0x6e, 0x64,
+	0x43, 0x6c, 0x75, 0x73, 0x74, 0x65, 0x72, 0x54, 0x65, 0x6c, 0x65, 0x6d, 0x65, 0x74, 0x72, 0x79,
+	0x12, 0x3f, 0x2e, 0x6c, 0x6c, 0x6d, 0x61, 0x72, 0x69, 0x6e, 0x65, 0x72, 0x2e, 0x63, 0x6c, 0x75,
+	0x73, 0x74, 0x65, 0x72, 0x6d, 0x6f, 0x6e, 0x69, 0x74, 0x6f, 0x72, 0x2e, 0x73, 0x65, 0x72, 0x76,
+	0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x65, 0x6e, 0x64, 0x43, 0x6c, 0x75, 0x73, 0x74, 0x65,
+	0x72, 0x54, 0x65, 0x6c, 0x65, 0x6d, 0x65, 0x74, 0x72, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x40, 0x2e, 0x6c, 0x6c, 0x6d, 0x61, 0x72, 0x69, 0x6e, 0x65, 0x72, 0x2e, 0x63, 0x6c,
+	0x75, 0x73, 0x74, 0x65, 0x72, 0x6d, 0x6f, 0x6e, 0x69, 0x74, 0x6f, 0x72, 0x2e, 0x73, 0x65, 0x72,
+	0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x65, 0x6e, 0x64, 0x43, 0x6c, 0x75, 0x73, 0x74,
+	0x65, 0x72, 0x54, 0x65, 0x6c, 0x65, 0x6d, 0x65, 0x74, 0x72, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x42, 0x2d, 0x5a, 0x2b, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f,
+	0x6d, 0x2f, 0x6c, 0x6c, 0x6d, 0x61, 0x72, 0x69, 0x6e, 0x65, 0x72, 0x2f, 0x63, 0x6c, 0x75, 0x73,
+	0x74, 0x65, 0x72, 0x2d, 0x6d, 0x6f, 0x6e, 0x69, 0x74, 0x6f, 0x72, 0x2f, 0x61, 0x70, 0x69, 0x2f,
+	0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
-var file_api_v1_monitor_server_worker_proto_goTypes = []interface{}{}
+var (
+	file_api_v1_monitor_server_worker_proto_rawDescOnce sync.Once
+	file_api_v1_monitor_server_worker_proto_rawDescData = file_api_v1_monitor_server_worker_proto_rawDesc
+)
+
+func file_api_v1_monitor_server_worker_proto_rawDescGZIP() []byte {
+	file_api_v1_monitor_server_worker_proto_rawDescOnce.Do(func() {
+		file_api_v1_monitor_server_worker_proto_rawDescData = protoimpl.X.CompressGZIP(file_api_v1_monitor_server_worker_proto_rawDescData)
+	})
+	return file_api_v1_monitor_server_worker_proto_rawDescData
+}
+
+var file_api_v1_monitor_server_worker_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_api_v1_monitor_server_worker_proto_goTypes = []interface{}{
+	(*SendClusterTelemetryRequest)(nil),         // 0: llmariner.clustermonitor.server.v1.SendClusterTelemetryRequest
+	(*ClusterSnapshot)(nil),                     // 1: llmariner.clustermonitor.server.v1.ClusterSnapshot
+	(*SendClusterTelemetryResponse)(nil),        // 2: llmariner.clustermonitor.server.v1.SendClusterTelemetryResponse
+	(*SendClusterTelemetryRequest_Payload)(nil), // 3: llmariner.clustermonitor.server.v1.SendClusterTelemetryRequest.Payload
+	(*ClusterSnapshot_Node)(nil),                // 4: llmariner.clustermonitor.server.v1.ClusterSnapshot.Node
+}
 var file_api_v1_monitor_server_worker_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	3, // 0: llmariner.clustermonitor.server.v1.SendClusterTelemetryRequest.payloads:type_name -> llmariner.clustermonitor.server.v1.SendClusterTelemetryRequest.Payload
+	4, // 1: llmariner.clustermonitor.server.v1.ClusterSnapshot.nodes:type_name -> llmariner.clustermonitor.server.v1.ClusterSnapshot.Node
+	1, // 2: llmariner.clustermonitor.server.v1.SendClusterTelemetryRequest.Payload.cluster_snapshot:type_name -> llmariner.clustermonitor.server.v1.ClusterSnapshot
+	0, // 3: llmariner.clustermonitor.server.v1.ClusterMonitorWorkerService.SendClusterTelemetry:input_type -> llmariner.clustermonitor.server.v1.SendClusterTelemetryRequest
+	2, // 4: llmariner.clustermonitor.server.v1.ClusterMonitorWorkerService.SendClusterTelemetry:output_type -> llmariner.clustermonitor.server.v1.SendClusterTelemetryResponse
+	4, // [4:5] is the sub-list for method output_type
+	3, // [3:4] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_api_v1_monitor_server_worker_proto_init() }
@@ -48,18 +366,84 @@ func file_api_v1_monitor_server_worker_proto_init() {
 	if File_api_v1_monitor_server_worker_proto != nil {
 		return
 	}
+	if !protoimpl.UnsafeEnabled {
+		file_api_v1_monitor_server_worker_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SendClusterTelemetryRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_v1_monitor_server_worker_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ClusterSnapshot); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_v1_monitor_server_worker_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SendClusterTelemetryResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_v1_monitor_server_worker_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SendClusterTelemetryRequest_Payload); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_v1_monitor_server_worker_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ClusterSnapshot_Node); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+	}
+	file_api_v1_monitor_server_worker_proto_msgTypes[3].OneofWrappers = []interface{}{
+		(*SendClusterTelemetryRequest_Payload_ClusterSnapshot)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_api_v1_monitor_server_worker_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   0,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_api_v1_monitor_server_worker_proto_goTypes,
 		DependencyIndexes: file_api_v1_monitor_server_worker_proto_depIdxs,
+		MessageInfos:      file_api_v1_monitor_server_worker_proto_msgTypes,
 	}.Build()
 	File_api_v1_monitor_server_worker_proto = out.File
 	file_api_v1_monitor_server_worker_proto_rawDesc = nil
