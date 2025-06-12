@@ -1,0 +1,28 @@
+{
+  "name": "@llmariner-types/cluster-monitor",
+  "version": "1.0.0",
+  "description": "cluster-monitor",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "tsconfig.json",
+    "ts",
+    "/dist"
+  ],
+  "devDependencies": {
+    "typescript": "^4.5.4"
+  },
+  "scripts": {
+    "build": "rm -rf ./dist && tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/llmariner/cluster-monitor.git"
+  },
+  "author": "llmariner",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/llmariner/cluster-monitor/issues"
+  },
+  "homepage": "https://github.com/llmariner/cluster-monitor#readme"
+}
