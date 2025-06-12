@@ -18,7 +18,7 @@ build-server:
 
 .PHONY: build-agent
 build-agent:
-	go build -o ./bin/agent ./server/agent
+	go build -o ./bin/agent ./agent/cmd/
 
 .PHONY: build-docker-server
 build-docker-server:
