@@ -4,9 +4,16 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/llmariner/api-usage/pkg/sender"
 	"github.com/llmariner/common/pkg/db"
 	"gopkg.in/yaml.v3"
 )
+
+// DebugConfig is the debug configuration.
+type DebugConfig struct {
+	Standalone bool   `yaml:"standalone"`
+	SqlitePath string `yaml:"sqlitePath"`
+}
 
 // AuthConfig is the authentication configuration.
 type AuthConfig struct {
@@ -15,7 +22,7 @@ type AuthConfig struct {
 }
 
 // Validate validates the configuration.
-func (c *AuthConfig) validate() error {
+func (c *AuthConfig) Validate() error {
 	if !c.Enable {
 		return nil
 	}
@@ -31,9 +38,11 @@ type Config struct {
 	GRPCPort              int `yaml:"grpcPort"`
 	WorkerServiceGRPCPort int `yaml:"workerServiceGrpcPort"`
 
-	AuthConfig AuthConfig `yaml:"auth"`
+	Database    db.Config     `yaml:"database"`
+	AuthConfig  AuthConfig    `yaml:"auth"`
+	UsageSender sender.Config `yaml:"usageSender"`
 
-	Database db.Config `yaml:"database"`
+	Debug DebugConfig `yaml:"debug"`
 }
 
 // Validate validates the configuration.
@@ -45,28 +54,40 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("grpcPort must be greater than 0")
 	}
 	if c.WorkerServiceGRPCPort <= 0 {
-		return fmt.Errorf("workerServiceGRPCPort must be greater than 0")
+		return fmt.Errorf("workerServiceGrpcPort must be greater than 0")
 	}
 
-	if err := c.AuthConfig.validate(); err != nil {
+	if c.Debug.Standalone {
+		if c.Debug.SqlitePath == "" {
+			return fmt.Errorf("sqlite path must be set")
+		}
+	} else {
+		if err := c.Database.Validate(); err != nil {
+			return fmt.Errorf("database: %s", err)
+		}
+	}
+
+	if err := c.AuthConfig.Validate(); err != nil {
 		return fmt.Errorf("auth: %s", err)
 	}
-	if err := c.Database.Validate(); err != nil {
-		return fmt.Errorf("database: %s", err)
+	if err := c.UsageSender.Validate(); err != nil {
+		return err
 	}
 	return nil
 }
 
 // Parse parses the configuration file at the given path, returning a new
 // Config struct.
-func Parse(path string) (*Config, error) {
+func Parse(path string) (Config, error) {
+	var config Config
+
 	b, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("config: read: %s", err)
+		return config, fmt.Errorf("config: read: %s", err)
 	}
-	var config Config
+
 	if err = yaml.Unmarshal(b, &config); err != nil {
-		return nil, fmt.Errorf("config: unmarshal: %s", err)
+		return config, fmt.Errorf("config: unmarshal: %s", err)
 	}
-	return &config, nil
+	return config, nil
 }
