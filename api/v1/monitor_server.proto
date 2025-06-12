@@ -2,7 +2,20 @@ syntax = "proto3";
 
 package llmariner.clutsermonitor.server.v1;
 
+import "google/api/annotations.proto";
+
 option go_package = "github.com/llmariner/cluster-monitor/api/v1";
 
-service ClusterMonitorWorkerService {
+message DummyRequest {
+}
+
+message DummyResponse {
+}
+
+service ClusterMonitorService {
+  rpc Dummy(DummyRequest) returns (DummyResponse) {
+    option (google.api.http) = {
+      get: "/v1/dummy"
+    };
+  }
 }

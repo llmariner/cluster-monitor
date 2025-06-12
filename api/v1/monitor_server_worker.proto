@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package llmariner.clutsermonitor.server.v1;
+
+option go_package = "github.com/llmariner/cluster-monitor/api/v1";
+
+service ClusterMonitorWorkerService {
+}
