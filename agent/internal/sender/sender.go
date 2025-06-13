@@ -19,6 +19,7 @@ func New(
 	payloadCh <-chan *v1.SendClusterTelemetryRequest_Payload,
 ) *S {
 	return &S{
+		telemetryClient: telemetryClient,
 		payloadCh: payloadCh,
 	}
 }
