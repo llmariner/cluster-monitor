@@ -8,7 +8,10 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/go-logr/stdr"
 	"github.com/llmariner/cluster-manager/pkg/status"
+	"github.com/llmariner/cluster-monitor/agent/internal/collector"
 	"github.com/llmariner/cluster-monitor/agent/internal/config"
+	"github.com/llmariner/cluster-monitor/agent/internal/sender"
+	v1 "github.com/llmariner/cluster-monitor/api/v1"
 	"github.com/llmariner/rbac-manager/pkg/auth"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
@@ -85,11 +88,27 @@ func run(ctx context.Context, c *config.Config) error {
 		}()
 	}
 
-	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
+	col := collector.New()
+	if err := col.SetupWithManager(mgr); err != nil {
 		return err
 	}
 
+	conn, err := grpc.NewClient(c.ClusterMonitorServerWorkerServiceAddr, grpcOption(c))
+	if err != nil {
+		return err
+	}
+	telemetryClient := v1.NewClusterMonitorWorkerServiceClient(conn)
+
+	se := sender.New(telemetryClient, col.PayloadCh())
+	if err := se.SetupWithManager(mgr); err != nil {
+		return err
+	}
+
+	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
+		return err
+	}
 	return mgr.Start(ctx)
+
 }
 
 func grpcOption(c *config.Config) grpc.DialOption {
