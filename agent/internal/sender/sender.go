@@ -20,7 +20,7 @@ func New(
 ) *S {
 	return &S{
 		telemetryClient: telemetryClient,
-		payloadCh: payloadCh,
+		payloadCh:       payloadCh,
 	}
 }
 

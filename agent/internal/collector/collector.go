@@ -9,7 +9,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-// New return a new collector instance.
+// New returns a new collector instance.
 func New() *C {
 	return &C{
 		payloadCh: make(chan *v1.SendClusterTelemetryRequest_Payload),
