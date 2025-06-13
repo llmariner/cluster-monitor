@@ -38,6 +38,8 @@ type WorkerConfig struct {
 
 // Config is the configuration.
 type Config struct {
+	ClusterMonitorServerWorkerServiceAddr string `yaml:"clusterMonitorServerWorkerServiceAddr"`
+
 	KubernetesManager KubernetesManagerConfig `yaml:"kubernetesManager"`
 
 	Worker WorkerConfig `yaml:"worker"`
@@ -50,6 +52,10 @@ type Config struct {
 
 // Validate validates the configuration.
 func (c *Config) Validate() error {
+	if c.ClusterMonitorServerWorkerServiceAddr == "" {
+		return fmt.Errorf("cluster monitor server worker service address must be set")
+	}
+
 	if err := c.KubernetesManager.validate(); err != nil {
 		return fmt.Errorf("kubernetes manager: %s", err)
 	}
