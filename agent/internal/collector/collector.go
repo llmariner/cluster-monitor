@@ -60,8 +60,10 @@ func (c *C) Start(ctx context.Context) error {
 		return err
 	}
 
+	tick := time.NewTicker(c.updateInterval)
+	defer tick.Stop()
+
 	for {
-		tick := time.NewTicker(c.updateInterval)
 		select {
 		case <-tick.C:
 			if err := c.collect(ctx); err != nil {
