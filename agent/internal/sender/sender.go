@@ -52,6 +52,9 @@ func (s *S) Start(ctx context.Context) error {
 			if !ok {
 				return nil
 			}
+
+			s.logger.Info("Sending cluster telemetry")
+
 			// TODO(kenji): Implement buffering.
 			req := &v1.SendClusterTelemetryRequest{
 				Payloads: []*v1.SendClusterTelemetryRequest_Payload{payload},
