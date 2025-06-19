@@ -18,11 +18,16 @@ func TestSender(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	sender.notifyCh = make(chan struct{})
+
 	go func() {
 		_ = sender.Start(ctx)
 	}()
 
 	ch <- &v1.SendClusterTelemetryRequest_Payload{}
+
+	// Wait for the sender to process the request.
+	<-sender.notifyCh
 
 	client.mu.Lock()
 	assert.Len(t, client.reqs, 1)

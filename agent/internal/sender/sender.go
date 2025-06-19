@@ -30,6 +30,9 @@ type S struct {
 	telemetryClient telemetryClient
 	payloadCh       <-chan *v1.SendClusterTelemetryRequest_Payload
 	logger          logr.Logger
+
+	// notifyCh is notified when the payload is sent. Only for testing.
+	notifyCh chan struct{}
 }
 
 // SetupWithManager registers the sender  with the manager.
@@ -65,6 +68,10 @@ func (s *S) Start(ctx context.Context) error {
 			// TODO(kenji): Implement retry and/or gracefully handle the error.
 			if _, err := s.telemetryClient.SendClusterTelemetry(ctx, req); err != nil {
 				return err
+			}
+
+			if s.notifyCh != nil {
+				s.notifyCh <- struct{}{}
 			}
 		}
 	}
