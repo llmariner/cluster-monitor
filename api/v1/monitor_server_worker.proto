@@ -18,7 +18,7 @@ message SendClusterTelemetryRequest {
 message ClusterSnapshot {
   message Node {
     string name = 1;
-    string gpu_count = 2;
+    int32 gpu_capacity = 2;
     // TODO(kenji): GPU architecture and other information.
   }
 

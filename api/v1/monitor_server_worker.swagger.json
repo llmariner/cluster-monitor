@@ -23,8 +23,9 @@
         "name": {
           "type": "string"
         },
-        "gpuCount": {
-          "type": "string"
+        "gpuCapacity": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },

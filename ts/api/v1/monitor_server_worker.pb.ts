@@ -27,7 +27,7 @@ export type SendClusterTelemetryRequest = {
 
 export type ClusterSnapshotNode = {
   name?: string
-  gpu_count?: string
+  gpu_capacity?: number
 }
 
 export type ClusterSnapshot = {

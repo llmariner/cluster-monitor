@@ -2,6 +2,7 @@ package collector
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-logr/logr"
 	v1 "github.com/llmariner/cluster-monitor/api/v1"
@@ -9,15 +10,26 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+const defaultUpdateInterval = 10 * time.Minute
+
+type collector interface {
+	collect(ctx context.Context) (*v1.SendClusterTelemetryRequest_Payload, error)
+}
+
 // New returns a new collector instance.
 func New() *C {
 	return &C{
-		payloadCh: make(chan *v1.SendClusterTelemetryRequest_Payload),
+		updateInterval: defaultUpdateInterval,
+		payloadCh:      make(chan *v1.SendClusterTelemetryRequest_Payload),
 	}
 }
 
 // C is a collector that collects telemetry data.
 type C struct {
+	collectors []collector
+
+	updateInterval time.Duration
+
 	payloadCh chan *v1.SendClusterTelemetryRequest_Payload
 
 	k8sClient client.Client
@@ -28,6 +40,12 @@ type C struct {
 func (c *C) SetupWithManager(mgr ctrl.Manager) error {
 	c.k8sClient = mgr.GetClient()
 	c.logger = mgr.GetLogger().WithName("collector")
+
+	c.collectors = []collector{
+		newClusterSnapshotCollector(c.k8sClient, c.logger),
+		// TODO(kenji): Add more collectors.
+	}
+
 	return mgr.Add(c)
 }
 
@@ -38,7 +56,36 @@ func (c *C) NeedLeaderElection() bool {
 
 // Start starts the collector.
 func (c *C) Start(ctx context.Context) error {
-	// TODO(kenji): Implement the collector logic here.
+	if err := c.collect(ctx); err != nil {
+		return err
+	}
+
+	for {
+		tick := time.NewTicker(c.updateInterval)
+		select {
+		case <-tick.C:
+			if err := c.collect(ctx); err != nil {
+				return err
+			}
+		case <-ctx.Done():
+			return ctx.Err()
+
+		}
+	}
+}
+
+func (c *C) collect(ctx context.Context) error {
+	c.logger.Info("Collecting telemetry data")
+
+	for _, collector := range c.collectors {
+		paylod, err := collector.collect(ctx)
+		if err != nil {
+			// TODO(kenji): Gracefully handle the error.
+			return err
+		}
+		c.payloadCh <- paylod
+	}
+
 	return nil
 }
 
