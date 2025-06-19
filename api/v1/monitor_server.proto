@@ -6,16 +6,43 @@ import "google/api/annotations.proto";
 
 option go_package = "github.com/llmariner/cluster-monitor/api/v1";
 
-message DummyRequest {
+message ListClusterSnapshotsRequest {
+  message Filter {
+    // TODO(kenji): Support start time, end time, cluster ID, etc.
+  }
+
+  Filter filter = 1;
+
+  message GroupBy {
+    // TODO(kenji): Implement (e.g., by cluster, by GPU architecture)
+  }
+
+  GroupBy group_by = 2;
 }
 
-message DummyResponse {
+message ListClusterSnapshotsResponse {
+  message GroupingKey {
+    // TODO(kenji): Implement
+  }
+
+  message Value {
+    GroupingKey grouping_key = 1;
+
+    int32 gpu_capacity = 2;
+  }
+
+  message Datapoint {
+    int64 timestamp = 1;
+    repeated Value values = 2;
+  }
+
+  repeated Datapoint datapoints = 1;
 }
 
 service ClusterMonitorService {
-  rpc Dummy(DummyRequest) returns (DummyResponse) {
+  rpc ListClusterSnapshots(ListClusterSnapshotsRequest) returns (ListClusterSnapshotsResponse) {
     option (google.api.http) = {
-      get: "/v1/dummy"
+      get: "/v1/clustertelemetry/clustersnapshots"
     };
   }
 }

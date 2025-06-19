@@ -16,14 +16,14 @@
     "application/json"
   ],
   "paths": {
-    "/v1/dummy": {
+    "/v1/clustertelemetry/clustersnapshots": {
       "get": {
-        "operationId": "ClusterMonitorService_Dummy",
+        "operationId": "ClusterMonitorService_ListClusterSnapshots",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1DummyResponse"
+              "$ref": "#/definitions/v1ListClusterSnapshotsResponse"
             }
           },
           "default": {
@@ -40,6 +40,42 @@
     }
   },
   "definitions": {
+    "ListClusterSnapshotsRequestFilter": {
+      "type": "object"
+    },
+    "ListClusterSnapshotsRequestGroupBy": {
+      "type": "object"
+    },
+    "ListClusterSnapshotsResponseDatapoint": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "int64"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListClusterSnapshotsResponseValue"
+          }
+        }
+      }
+    },
+    "ListClusterSnapshotsResponseGroupingKey": {
+      "type": "object"
+    },
+    "ListClusterSnapshotsResponseValue": {
+      "type": "object",
+      "properties": {
+        "groupingKey": {
+          "$ref": "#/definitions/ListClusterSnapshotsResponseGroupingKey"
+        },
+        "gpuCapacity": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -67,8 +103,16 @@
         }
       }
     },
-    "v1DummyResponse": {
-      "type": "object"
+    "v1ListClusterSnapshotsResponse": {
+      "type": "object",
+      "properties": {
+        "datapoints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ListClusterSnapshotsResponseDatapoint"
+          }
+        }
+      }
     }
   }
 }

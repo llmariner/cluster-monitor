@@ -18,7 +18,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ClusterMonitorServiceClient interface {
-	Dummy(ctx context.Context, in *DummyRequest, opts ...grpc.CallOption) (*DummyResponse, error)
+	ListClusterSnapshots(ctx context.Context, in *ListClusterSnapshotsRequest, opts ...grpc.CallOption) (*ListClusterSnapshotsResponse, error)
 }
 
 type clusterMonitorServiceClient struct {
@@ -29,9 +29,9 @@ func NewClusterMonitorServiceClient(cc grpc.ClientConnInterface) ClusterMonitorS
 	return &clusterMonitorServiceClient{cc}
 }
 
-func (c *clusterMonitorServiceClient) Dummy(ctx context.Context, in *DummyRequest, opts ...grpc.CallOption) (*DummyResponse, error) {
-	out := new(DummyResponse)
-	err := c.cc.Invoke(ctx, "/llmariner.clustermonitor.server.v1.ClusterMonitorService/Dummy", in, out, opts...)
+func (c *clusterMonitorServiceClient) ListClusterSnapshots(ctx context.Context, in *ListClusterSnapshotsRequest, opts ...grpc.CallOption) (*ListClusterSnapshotsResponse, error) {
+	out := new(ListClusterSnapshotsResponse)
+	err := c.cc.Invoke(ctx, "/llmariner.clustermonitor.server.v1.ClusterMonitorService/ListClusterSnapshots", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (c *clusterMonitorServiceClient) Dummy(ctx context.Context, in *DummyReques
 // All implementations must embed UnimplementedClusterMonitorServiceServer
 // for forward compatibility
 type ClusterMonitorServiceServer interface {
-	Dummy(context.Context, *DummyRequest) (*DummyResponse, error)
+	ListClusterSnapshots(context.Context, *ListClusterSnapshotsRequest) (*ListClusterSnapshotsResponse, error)
 	mustEmbedUnimplementedClusterMonitorServiceServer()
 }
 
@@ -50,8 +50,8 @@ type ClusterMonitorServiceServer interface {
 type UnimplementedClusterMonitorServiceServer struct {
 }
 
-func (UnimplementedClusterMonitorServiceServer) Dummy(context.Context, *DummyRequest) (*DummyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Dummy not implemented")
+func (UnimplementedClusterMonitorServiceServer) ListClusterSnapshots(context.Context, *ListClusterSnapshotsRequest) (*ListClusterSnapshotsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListClusterSnapshots not implemented")
 }
 func (UnimplementedClusterMonitorServiceServer) mustEmbedUnimplementedClusterMonitorServiceServer() {}
 
@@ -66,20 +66,20 @@ func RegisterClusterMonitorServiceServer(s grpc.ServiceRegistrar, srv ClusterMon
 	s.RegisterService(&ClusterMonitorService_ServiceDesc, srv)
 }
 
-func _ClusterMonitorService_Dummy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DummyRequest)
+func _ClusterMonitorService_ListClusterSnapshots_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListClusterSnapshotsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ClusterMonitorServiceServer).Dummy(ctx, in)
+		return srv.(ClusterMonitorServiceServer).ListClusterSnapshots(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/llmariner.clustermonitor.server.v1.ClusterMonitorService/Dummy",
+		FullMethod: "/llmariner.clustermonitor.server.v1.ClusterMonitorService/ListClusterSnapshots",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ClusterMonitorServiceServer).Dummy(ctx, req.(*DummyRequest))
+		return srv.(ClusterMonitorServiceServer).ListClusterSnapshots(ctx, req.(*ListClusterSnapshotsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -92,8 +92,8 @@ var ClusterMonitorService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ClusterMonitorServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Dummy",
-			Handler:    _ClusterMonitorService_Dummy_Handler,
+			MethodName: "ListClusterSnapshots",
+			Handler:    _ClusterMonitorService_ListClusterSnapshots_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

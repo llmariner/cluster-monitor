@@ -19,7 +19,7 @@ spec:
   rules:
   - http:
       paths:
-      - path: /v1/cluster_monitor
+      - path: /v1/clustertelemetry
         pathType: Prefix
         backend:
           service:

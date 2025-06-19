@@ -5,14 +5,36 @@
 */
 
 import * as fm from "../../fetch.pb"
-export type DummyRequest = {
+export type ListClusterSnapshotsRequestFilter = {
 }
 
-export type DummyResponse = {
+export type ListClusterSnapshotsRequestGroupBy = {
+}
+
+export type ListClusterSnapshotsRequest = {
+  filter?: ListClusterSnapshotsRequestFilter
+  group_by?: ListClusterSnapshotsRequestGroupBy
+}
+
+export type ListClusterSnapshotsResponseGroupingKey = {
+}
+
+export type ListClusterSnapshotsResponseValue = {
+  grouping_key?: ListClusterSnapshotsResponseGroupingKey
+  gpu_capacity?: number
+}
+
+export type ListClusterSnapshotsResponseDatapoint = {
+  timestamp?: string
+  values?: ListClusterSnapshotsResponseValue[]
+}
+
+export type ListClusterSnapshotsResponse = {
+  datapoints?: ListClusterSnapshotsResponseDatapoint[]
 }
 
 export class ClusterMonitorService {
-  static Dummy(req: DummyRequest, initReq?: fm.InitReq): Promise<DummyResponse> {
-    return fm.fetchReq<DummyRequest, DummyResponse>(`/v1/dummy?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"})
+  static ListClusterSnapshots(req: ListClusterSnapshotsRequest, initReq?: fm.InitReq): Promise<ListClusterSnapshotsResponse> {
+    return fm.fetchReq<ListClusterSnapshotsRequest, ListClusterSnapshotsResponse>(`/v1/clustertelemetry/clustersnapshots?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"})
   }
 }

@@ -31,20 +31,38 @@ var _ = runtime.String
 var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
-func request_ClusterMonitorService_Dummy_0(ctx context.Context, marshaler runtime.Marshaler, client ClusterMonitorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DummyRequest
+var (
+	filter_ClusterMonitorService_ListClusterSnapshots_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
+
+func request_ClusterMonitorService_ListClusterSnapshots_0(ctx context.Context, marshaler runtime.Marshaler, client ClusterMonitorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListClusterSnapshotsRequest
 	var metadata runtime.ServerMetadata
 
-	msg, err := client.Dummy(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ClusterMonitorService_ListClusterSnapshots_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.ListClusterSnapshots(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_ClusterMonitorService_Dummy_0(ctx context.Context, marshaler runtime.Marshaler, server ClusterMonitorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DummyRequest
+func local_request_ClusterMonitorService_ListClusterSnapshots_0(ctx context.Context, marshaler runtime.Marshaler, server ClusterMonitorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListClusterSnapshotsRequest
 	var metadata runtime.ServerMetadata
 
-	msg, err := server.Dummy(ctx, &protoReq)
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ClusterMonitorService_ListClusterSnapshots_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.ListClusterSnapshots(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -55,18 +73,18 @@ func local_request_ClusterMonitorService_Dummy_0(ctx context.Context, marshaler 
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterClusterMonitorServiceHandlerFromEndpoint instead.
 func RegisterClusterMonitorServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ClusterMonitorServiceServer) error {
 
-	mux.Handle("GET", pattern_ClusterMonitorService_Dummy_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ClusterMonitorService_ListClusterSnapshots_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/llmariner.clustermonitor.server.v1.ClusterMonitorService/Dummy", runtime.WithHTTPPathPattern("/v1/dummy"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/llmariner.clustermonitor.server.v1.ClusterMonitorService/ListClusterSnapshots", runtime.WithHTTPPathPattern("/v1/clustertelemetry/clustersnapshots"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ClusterMonitorService_Dummy_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ClusterMonitorService_ListClusterSnapshots_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -74,7 +92,7 @@ func RegisterClusterMonitorServiceHandlerServer(ctx context.Context, mux *runtim
 			return
 		}
 
-		forward_ClusterMonitorService_Dummy_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ClusterMonitorService_ListClusterSnapshots_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -119,23 +137,23 @@ func RegisterClusterMonitorServiceHandler(ctx context.Context, mux *runtime.Serv
 // "ClusterMonitorServiceClient" to call the correct interceptors.
 func RegisterClusterMonitorServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ClusterMonitorServiceClient) error {
 
-	mux.Handle("GET", pattern_ClusterMonitorService_Dummy_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ClusterMonitorService_ListClusterSnapshots_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/llmariner.clustermonitor.server.v1.ClusterMonitorService/Dummy", runtime.WithHTTPPathPattern("/v1/dummy"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/llmariner.clustermonitor.server.v1.ClusterMonitorService/ListClusterSnapshots", runtime.WithHTTPPathPattern("/v1/clustertelemetry/clustersnapshots"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ClusterMonitorService_Dummy_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ClusterMonitorService_ListClusterSnapshots_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ClusterMonitorService_Dummy_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ClusterMonitorService_ListClusterSnapshots_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -143,9 +161,9 @@ func RegisterClusterMonitorServiceHandlerClient(ctx context.Context, mux *runtim
 }
 
 var (
-	pattern_ClusterMonitorService_Dummy_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "dummy"}, ""))
+	pattern_ClusterMonitorService_ListClusterSnapshots_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "clustertelemetry", "clustersnapshots"}, ""))
 )
 
 var (
-	forward_ClusterMonitorService_Dummy_0 = runtime.ForwardResponseMessage
+	forward_ClusterMonitorService_ListClusterSnapshots_0 = runtime.ForwardResponseMessage
 )
