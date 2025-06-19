@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-logr/logr"
 	v1 "github.com/llmariner/cluster-monitor/api/v1"
+	"github.com/llmariner/rbac-manager/pkg/auth"
 	"google.golang.org/grpc"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
@@ -54,6 +55,8 @@ func (s *S) Start(ctx context.Context) error {
 			}
 
 			s.logger.Info("Sending cluster telemetry")
+
+			ctx = auth.AppendWorkerAuthorization(ctx)
 
 			// TODO(kenji): Implement buffering.
 			req := &v1.SendClusterTelemetryRequest{
