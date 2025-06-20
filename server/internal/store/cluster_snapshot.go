@@ -64,6 +64,15 @@ func (s *S) GetClusterSnapshotByID(clusterID string) (*ClusterSnapshot, error) {
 	return &c, nil
 }
 
+// ListClusterSnapshotsByTenantID lists cluster snapshots by tenant ID.
+func (s *S) ListClusterSnapshotsByTenantID(tenantID string) ([]*ClusterSnapshot, error) {
+	var cs []*ClusterSnapshot
+	if err := s.db.Where("tenant_id = ?", tenantID).Find(&cs).Error; err != nil {
+		return nil, err
+	}
+	return cs, nil
+}
+
 // CreateClusterSnapshotHistory creates a new cluster snapshot history.
 func (s *S) CreateClusterSnapshotHistory(c *ClusterSnapshotHistory) error {
 	if err := s.db.Save(c).Error; err != nil {
