@@ -89,7 +89,7 @@ func (s *S) ListClusterSnapshots(
 		}
 
 		// Group by cluster ID and calculate average GPU capacity per cluster
-		clusterGpuSums := make(map[string]int32)
+		clusterGPUSums := make(map[string]int32)
 		clusterCounts := make(map[string]int)
 
 		for _, h := range intervalHistories {
@@ -98,21 +98,21 @@ func (s *S) ListClusterSnapshots(
 				continue // Skip invalid messages
 			}
 
-			var totalGpu int32
+			var totalGPU int32
 			for _, node := range snapshot.Nodes {
-				totalGpu += node.GpuCapacity
+				totalGPU += node.GpuCapacity
 			}
 
-			clusterGpuSums[h.ClusterID] += totalGpu
+			clusterGPUSums[h.ClusterID] += totalGPU
 			clusterCounts[h.ClusterID]++
 		}
 
 		// Calculate total GPU capacity (sum of averages from each cluster)
-		var totalGpuCapacity int32
-		for clusterID, sum := range clusterGpuSums {
+		var totalGPUCapacity int32
+		for clusterID, sum := range clusterGPUSums {
 			count := clusterCounts[clusterID]
 			if count > 0 {
-				totalGpuCapacity += sum / int32(count) // Average for this cluster
+				totalGPUCapacity += sum / int32(count) // Average for this cluster
 			}
 		}
 
@@ -121,7 +121,7 @@ func (s *S) ListClusterSnapshots(
 			Values: []*v1.ListClusterSnapshotsResponse_Value{
 				{
 					GroupingKey: nil,
-					GpuCapacity: totalGpuCapacity,
+					GpuCapacity: totalGPUCapacity,
 				},
 			},
 		}
