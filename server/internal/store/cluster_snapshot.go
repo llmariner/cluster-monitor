@@ -73,7 +73,7 @@ func (s *S) CreateClusterSnapshotHistory(c *ClusterSnapshotHistory) error {
 	return nil
 }
 
-// ListClusterSnapshotHistory returns a list of cluster snapshots for the given cluster ID.
+// ListClusterSnapshotHistories returns a list of cluster snapshots for the given cluster ID.
 func (s *S) ListClusterSnapshotHistories(clusterID string) ([]*ClusterSnapshotHistory, error) {
 	var hs []*ClusterSnapshotHistory
 	if err := s.db.Where("cluster_id = ?", clusterID).Find(&hs).Error; err != nil {
