@@ -44,16 +44,24 @@ func (ws *WS) processClusterSnapshot(
 	clusterInfo *auth.ClusterInfo,
 	csProto *v1.ClusterSnapshot,
 ) error {
+	cs := &store.ClusterSnapshot{
+		ClusterID: clusterInfo.ClusterID,
+		Name:      clusterInfo.ClusterName,
+	}
+	if err := ws.store.CreateOrUpdateClusterSnapshot(cs); err != nil {
+		return err
+	}
+
 	msg, err := proto.Marshal(csProto)
 	if err != nil {
 		return err
 	}
-	cs := &store.ClusterSnapshot{
+
+	csh := &store.ClusterSnapshotHistory{
 		ClusterID: clusterInfo.ClusterID,
-		Name:      clusterInfo.ClusterName,
 		Message:   msg,
 	}
-	if err := ws.store.CreateOrUpdateClusterSnapshot(cs); err != nil {
+	if err := ws.store.CreateClusterSnapshotHistory(csh); err != nil {
 		return err
 	}
 

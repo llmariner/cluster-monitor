@@ -41,9 +41,14 @@ func TestListClusters(t *testing.T) {
 
 	cs, err := st.GetClusterSnapshotByID(defaultClusterID)
 	assert.NoError(t, err)
+	assert.Equal(t, defaultClusterID, cs.ClusterID)
 
-	csProto := &v1.ClusterSnapshot{}
-	err = proto.Unmarshal(cs.Message, csProto)
+	hs, err := st.ListClusterSnapshotHistories(cs.ClusterID)
 	assert.NoError(t, err)
-	assert.Len(t, csProto.Nodes, 2)
+	assert.Len(t, hs, 1)
+
+	cshProto := &v1.ClusterSnapshot{}
+	err = proto.Unmarshal(hs[0].Message, cshProto)
+	assert.NoError(t, err)
+	assert.Len(t, cshProto.Nodes, 2)
 }

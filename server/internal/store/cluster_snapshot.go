@@ -2,14 +2,11 @@ package store
 
 import (
 	"errors"
-	"fmt"
 
 	"gorm.io/gorm"
 )
 
 // ClusterSnapshot represents the cluster snapshot.
-//
-// TODO(kenji): Store historical data instead of just keeping the current status.
 type ClusterSnapshot struct {
 	gorm.Model
 
@@ -17,9 +14,18 @@ type ClusterSnapshot struct {
 	Name      string
 
 	TenantID string `gorm:"index"`
+}
+
+// ClusterSnapshotHistory represents the cluster snapshot history.
+type ClusterSnapshotHistory struct {
+	gorm.Model
+
+	ClusterID string `gorm:"index"`
 
 	// Message is a marshalled proto message ClusterSnapshot.
 	Message []byte
+
+	// TODO(kenji): Add SnapshotCreatedAt?
 }
 
 // CreateOrUpdateClusterSnapshot creates a new cluster snapshot or updates the existing one.
@@ -37,16 +43,11 @@ func (s *S) CreateOrUpdateClusterSnapshot(c *ClusterSnapshot) error {
 		return nil
 	}
 
-	// Found an existing record. Update it.
-	if existing.ClusterID != c.ClusterID {
-		return fmt.Errorf("cluster ID mismatch: cannot update existing record with different cluster ID: %s != %s", existing.ClusterID, c.ClusterID)
+	if existing.Name == c.Name {
+		// No need to update.
+		return nil
 	}
-	if existing.TenantID != c.TenantID {
-		return fmt.Errorf("tenant ID mismatch: cannot update existing record with different tenant ID: %s != %s", existing.TenantID, c.TenantID)
-	}
-
 	existing.Name = c.Name
-	existing.Message = c.Message
 	if err := s.db.Save(&existing).Error; err != nil {
 		return err
 	}
@@ -61,4 +62,22 @@ func (s *S) GetClusterSnapshotByID(clusterID string) (*ClusterSnapshot, error) {
 		return nil, err
 	}
 	return &c, nil
+}
+
+// CreateClusterSnapshotHistory creates a new cluster snapshot history.
+func (s *S) CreateClusterSnapshotHistory(c *ClusterSnapshotHistory) error {
+	if err := s.db.Save(c).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ListClusterSnapshotHistory returns a list of cluster snapshots for the given cluster ID.
+func (s *S) ListClusterSnapshotHistories(clusterID string) ([]*ClusterSnapshotHistory, error) {
+	var hs []*ClusterSnapshotHistory
+	if err := s.db.Where("cluster_id = ?", clusterID).Find(&hs).Error; err != nil {
+		return nil, err
+	}
+	return hs, nil
 }

@@ -38,3 +38,22 @@ func TestCreateOrUpdateClusterSnapshot(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, c.Name, got.Name)
 }
+
+func TestClusterSnapshotHistory(t *testing.T) {
+	st, teardown := NewTest(t)
+	defer teardown()
+
+	err := st.CreateClusterSnapshotHistory(&ClusterSnapshotHistory{
+		ClusterID: "cid0",
+	})
+	assert.NoError(t, err)
+
+	err = st.CreateClusterSnapshotHistory(&ClusterSnapshotHistory{
+		ClusterID: "cid0",
+	})
+	assert.NoError(t, err)
+
+	hs, err := st.ListClusterSnapshotHistories("cid0")
+	assert.NoError(t, err)
+	assert.Len(t, hs, 2)
+}
