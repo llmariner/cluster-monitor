@@ -297,6 +297,7 @@ type ListClusterSnapshotsResponse_Datapoint struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// timesecond is the Unix timestamp in seconds.
 	Timestamp int64                                 `protobuf:"varint,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	Values    []*ListClusterSnapshotsResponse_Value `protobuf:"bytes,2,rep,name=values,proto3" json:"values,omitempty"`
 }

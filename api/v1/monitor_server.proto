@@ -32,6 +32,7 @@ message ListClusterSnapshotsResponse {
   }
 
   message Datapoint {
+    // timesecond is the Unix timestamp in seconds.
     int64 timestamp = 1;
     repeated Value values = 2;
   }

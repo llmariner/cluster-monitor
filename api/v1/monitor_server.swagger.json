@@ -51,7 +51,8 @@
       "properties": {
         "timestamp": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "description": "timesecond is the Unix timestamp in seconds."
         },
         "values": {
           "type": "array",
