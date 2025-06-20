@@ -2,12 +2,16 @@ package server
 
 import (
 	"context"
+	"sort"
 	"time"
 
 	v1 "github.com/llmariner/cluster-monitor/api/v1"
+	workerv1 "github.com/llmariner/cluster-monitor/api/v1"
+	"github.com/llmariner/cluster-monitor/server/internal/store"
 	"github.com/llmariner/rbac-manager/pkg/auth"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 )
 
 // ListClusterSnapshots lists the cluster snapshots.
@@ -31,12 +35,20 @@ func (s *S) ListClusterSnapshots(
 	}
 
 	// List all cluster snapshot histories for each snapshot.
+	var allHistories []*store.ClusterSnapshotHistory
+	for _, c := range cs {
+		histories, err := s.store.ListClusterSnapshotHistories(c.ClusterID)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to list cluster snapshot histories for cluster %s: %s", c.ClusterID, err)
+		}
+		allHistories = append(allHistories, histories...)
+	}
 
 	// Construct datapoints.
 	//
 	// 1. Sort cluster snapshot histories by its CreatedAt in ascending order.
 	// 2. Group them by an interval of 1 hour.
-	// 3. For each internal, consturct a datapoint (v1.ListClusterSnapshotsResponse_Datapoint).
+	// 3. For each interval, construct a datapoint (v1.ListClusterSnapshotsResponse_Datapoint).
 	//    The timestamp of the datapoint is the start of the interval.
 	//    The values of the datapoint is currently sum of GPU capacities of all cluster snapshots in the interval.
 	//    The grouping key is nil as we don't support grouping by any key yet.
@@ -45,18 +57,78 @@ func (s *S) ListClusterSnapshots(
 	endTime := time.Now()
 	startTime := endTime.Add(-24 * time.Hour) // Default to the last 24 hours.
 
-	// Fake value for testing.
-	return &v1.ListClusterSnapshotsResponse{
-		Datapoints: []*v1.ListClusterSnapshotsResponse_Datapoint{
-			{
-				Timestamp: time.Now().Unix(),
-				Values: []*v1.ListClusterSnapshotsResponse_Value{
-					{
-						GroupingKey: nil,
-						GpuCapacity: 1,
-					},
+	// Filter histories within the time range and sort by CreatedAt
+	var filteredHistories []*store.ClusterSnapshotHistory
+	for _, h := range allHistories {
+		if h.CreatedAt.After(startTime) && h.CreatedAt.Before(endTime) {
+			filteredHistories = append(filteredHistories, h)
+		}
+	}
+
+	sort.Slice(filteredHistories, func(i, j int) bool {
+		return filteredHistories[i].CreatedAt.Before(filteredHistories[j].CreatedAt)
+	})
+
+	// Group by 1-hour intervals
+	datapoints := make([]*v1.ListClusterSnapshotsResponse_Datapoint, 0)
+	hourInterval := time.Hour
+
+	for current := startTime.Truncate(hourInterval); current.Before(endTime); current = current.Add(hourInterval) {
+		intervalEnd := current.Add(hourInterval)
+
+		// Collect all histories in this interval
+		var intervalHistories []*store.ClusterSnapshotHistory
+		for _, h := range filteredHistories {
+			if !h.CreatedAt.Before(current) && h.CreatedAt.Before(intervalEnd) {
+				intervalHistories = append(intervalHistories, h)
+			}
+		}
+
+		if len(intervalHistories) == 0 {
+			continue
+		}
+
+		// Group by cluster ID and calculate average GPU capacity per cluster
+		clusterGpuSums := make(map[string]int32)
+		clusterCounts := make(map[string]int)
+
+		for _, h := range intervalHistories {
+			var snapshot workerv1.ClusterSnapshot
+			if err := proto.Unmarshal(h.Message, &snapshot); err != nil {
+				continue // Skip invalid messages
+			}
+
+			var totalGpu int32
+			for _, node := range snapshot.Nodes {
+				totalGpu += node.GpuCapacity
+			}
+
+			clusterGpuSums[h.ClusterID] += totalGpu
+			clusterCounts[h.ClusterID]++
+		}
+
+		// Calculate total GPU capacity (sum of averages from each cluster)
+		var totalGpuCapacity int32
+		for clusterID, sum := range clusterGpuSums {
+			count := clusterCounts[clusterID]
+			if count > 0 {
+				totalGpuCapacity += sum / int32(count) // Average for this cluster
+			}
+		}
+
+		datapoint := &v1.ListClusterSnapshotsResponse_Datapoint{
+			Timestamp: current.Unix(),
+			Values: []*v1.ListClusterSnapshotsResponse_Value{
+				{
+					GroupingKey: nil,
+					GpuCapacity: totalGpuCapacity,
 				},
 			},
-		},
+		}
+		datapoints = append(datapoints, datapoint)
+	}
+
+	return &v1.ListClusterSnapshotsResponse{
+		Datapoints: datapoints,
 	}, nil
 }
