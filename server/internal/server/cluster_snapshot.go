@@ -77,14 +77,14 @@ func (s *S) ListClusterSnapshots(
 		intervalEnd := current.Add(hourInterval)
 
 		// Collect all histories in this interval
-		var intervalHistories []*store.ClusterSnapshotHistory
+		var ihs []*store.ClusterSnapshotHistory
 		for _, h := range filteredHistories {
 			if !h.CreatedAt.Before(current) && h.CreatedAt.Before(intervalEnd) {
-				intervalHistories = append(intervalHistories, h)
+				ihs = append(ihs, h)
 			}
 		}
 
-		if len(intervalHistories) == 0 {
+		if len(ihs) == 0 {
 			continue
 		}
 
@@ -92,7 +92,7 @@ func (s *S) ListClusterSnapshots(
 		clusterGPUSums := make(map[string]int32)
 		clusterCounts := make(map[string]int)
 
-		for _, h := range intervalHistories {
+		for _, h := range ihs {
 			var snapshot workerv1.ClusterSnapshot
 			if err := proto.Unmarshal(h.Message, &snapshot); err != nil {
 				continue // Skip invalid messages
