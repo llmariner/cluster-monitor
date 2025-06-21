@@ -85,35 +85,33 @@ func (s *S) ListClusterSnapshots(
 			}
 		}
 
-		if len(ihs) == 0 {
-			continue
-		}
-
-		// Group by cluster ID and calculate average GPU capacity per cluster
-		clusterGPUSums := make(map[string]int32)
-		clusterCounts := make(map[string]int)
-
-		for _, h := range ihs {
-			var snapshot workerv1.ClusterSnapshot
-			if err := proto.Unmarshal(h.Message, &snapshot); err != nil {
-				continue // Skip invalid messages
-			}
-
-			var totalGPU int32
-			for _, node := range snapshot.Nodes {
-				totalGPU += node.GpuCapacity
-			}
-
-			clusterGPUSums[h.ClusterID] += totalGPU
-			clusterCounts[h.ClusterID]++
-		}
-
-		// Calculate total GPU capacity (sum of averages from each cluster)
 		var totalGPUCapacity int32
-		for clusterID, sum := range clusterGPUSums {
-			count := clusterCounts[clusterID]
-			if count > 0 {
-				totalGPUCapacity += sum / int32(count) // Average for this cluster
+		if len(ihs) > 0 {
+			// Group by cluster ID and calculate average GPU capacity per cluster
+			clusterGPUSums := make(map[string]int32)
+			clusterCounts := make(map[string]int)
+
+			for _, h := range ihs {
+				var snapshot workerv1.ClusterSnapshot
+				if err := proto.Unmarshal(h.Message, &snapshot); err != nil {
+					continue // Skip invalid messages
+				}
+
+				var totalGPU int32
+				for _, node := range snapshot.Nodes {
+					totalGPU += node.GpuCapacity
+				}
+
+				clusterGPUSums[h.ClusterID] += totalGPU
+				clusterCounts[h.ClusterID]++
+			}
+
+			// Calculate total GPU capacity (sum of averages from each cluster)
+			for clusterID, sum := range clusterGPUSums {
+				count := clusterCounts[clusterID]
+				if count > 0 {
+					totalGPUCapacity += sum / int32(count) // Average for this cluster
+				}
 			}
 		}
 
