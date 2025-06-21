@@ -109,9 +109,7 @@ func (s *S) ListClusterSnapshots(
 			// Calculate total GPU capacity (sum of averages from each cluster)
 			for clusterID, sum := range clusterGPUSums {
 				count := clusterCounts[clusterID]
-				if count > 0 {
-					totalGPUCapacity += sum / int32(count) // Average for this cluster
-				}
+				totalGPUCapacity += sum / int32(count) // Average for this cluster
 			}
 		}
 
