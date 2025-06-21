@@ -6,7 +6,6 @@ import (
 	"time"
 
 	v1 "github.com/llmariner/cluster-monitor/api/v1"
-	workerv1 "github.com/llmariner/cluster-monitor/api/v1"
 	"github.com/llmariner/cluster-monitor/server/internal/store"
 	"github.com/llmariner/rbac-manager/pkg/auth"
 	"google.golang.org/grpc/codes"
