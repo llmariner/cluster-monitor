@@ -77,6 +77,7 @@ func (s *S) ListClusterSnapshots(
 		intervalEnd := current.Add(hourInterval)
 
 		// Collect all histories in this interval
+		// TODO(kenji): Make this more efficient.
 		var ihs []*store.ClusterSnapshotHistory
 		for _, h := range filteredHistories {
 			if !h.CreatedAt.Before(current) && h.CreatedAt.Before(intervalEnd) {
