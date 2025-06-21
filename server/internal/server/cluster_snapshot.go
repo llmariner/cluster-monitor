@@ -72,18 +72,16 @@ func (s *S) ListClusterSnapshots(
 	datapoints := make([]*v1.ListClusterSnapshotsResponse_Datapoint, 0)
 	hourInterval := time.Hour
 
+	// Group histories by hourly intervals in a single pass
+	intervalBuckets := make(map[time.Time][]*store.ClusterSnapshotHistory)
+	for _, h := range filteredHistories {
+		intervalStart := h.CreatedAt.Truncate(hourInterval)
+		intervalBuckets[intervalStart] = append(intervalBuckets[intervalStart], h)
+	}
+
+	// Process each interval bucket
 	for current := startTime.Truncate(hourInterval); current.Before(endTime); current = current.Add(hourInterval) {
-		intervalEnd := current.Add(hourInterval)
-
-		// Collect all histories in this interval
-		// TODO(kenji): Make this more efficient.
-		var ihs []*store.ClusterSnapshotHistory
-		for _, h := range filteredHistories {
-			if !h.CreatedAt.Before(current) && h.CreatedAt.Before(intervalEnd) {
-				ihs = append(ihs, h)
-			}
-		}
-
+		ihs := intervalBuckets[current]
 		var totalGPUCapacity int32
 		if len(ihs) > 0 {
 			// Group by cluster ID and calculate average GPU capacity per cluster
