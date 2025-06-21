@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"sort"
 	"time"
 
@@ -45,14 +44,12 @@ func (s *S) ListClusterSnapshots(
 	// List all cluster snapshot histories for each snapshot.
 	var hs []*store.ClusterSnapshotHistory
 	for _, c := range cs {
-		chs, err := s.store.ListClusterSnapshotHistories(c.ClusterID, startTime.Add(defaultInterval), endTime)
+		chs, err := s.store.ListClusterSnapshotHistories(c.ClusterID, startTime.Add(-1*defaultInterval), endTime)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to list cluster snapshot histories for cluster %s: %s", c.ClusterID, err)
 		}
 		hs = append(hs, chs...)
 	}
-
-	fmt.Printf("FOUND %d snapshots for cluster\n", len(hs))
 
 	// Construct datapoints.
 	//
