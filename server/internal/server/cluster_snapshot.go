@@ -59,7 +59,7 @@ func (s *S) ListClusterSnapshots(
 	// Filter histories within the time range and sort by CreatedAt
 	var filteredHistories []*store.ClusterSnapshotHistory
 	for _, h := range allHistories {
-		if h.CreatedAt.After(startTime) && h.CreatedAt.Before(endTime) {
+		if !h.CreatedAt.Before(startTime) && h.CreatedAt.Before(endTime) {
 			filteredHistories = append(filteredHistories, h)
 		}
 	}
