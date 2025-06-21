@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"time"
 
 	v1 "github.com/llmariner/cluster-monitor/api/v1"
 	"github.com/llmariner/cluster-monitor/server/internal/store"
@@ -58,8 +59,9 @@ func (ws *WS) processClusterSnapshot(
 	}
 
 	csh := &store.ClusterSnapshotHistory{
-		ClusterID: clusterInfo.ClusterID,
-		Message:   msg,
+		ClusterID:        clusterInfo.ClusterID,
+		Message:          msg,
+		HistoryCreatedAt: time.Now(),
 	}
 	if err := ws.store.CreateClusterSnapshotHistory(csh); err != nil {
 		return err

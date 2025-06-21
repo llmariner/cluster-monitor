@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/go-logr/logr/testr"
 	v1 "github.com/llmariner/cluster-monitor/api/v1"
@@ -43,7 +44,8 @@ func TestListClusters(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, defaultClusterID, cs.ClusterID)
 
-	hs, err := st.ListClusterSnapshotHistories(cs.ClusterID)
+	now := cs.CreatedAt
+	hs, err := st.ListClusterSnapshotHistories(cs.ClusterID, now.Add(-1*time.Hour), now.Add(1*time.Hour))
 	assert.NoError(t, err)
 	assert.Len(t, hs, 1)
 

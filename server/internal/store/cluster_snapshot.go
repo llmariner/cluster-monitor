@@ -2,6 +2,7 @@ package store
 
 import (
 	"errors"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -25,7 +26,7 @@ type ClusterSnapshotHistory struct {
 	// Message is a marshalled proto message ClusterSnapshot.
 	Message []byte
 
-	// TODO(kenji): Add SnapshotCreatedAt?
+	HistoryCreatedAt time.Time `gorm:"index"`
 }
 
 // CreateOrUpdateClusterSnapshot creates a new cluster snapshot or updates the existing one.
@@ -83,9 +84,12 @@ func (s *S) CreateClusterSnapshotHistory(c *ClusterSnapshotHistory) error {
 }
 
 // ListClusterSnapshotHistories returns a list of cluster snapshots for the given cluster ID.
-func (s *S) ListClusterSnapshotHistories(clusterID string) ([]*ClusterSnapshotHistory, error) {
+func (s *S) ListClusterSnapshotHistories(clusterID string, startTime, endTime time.Time) ([]*ClusterSnapshotHistory, error) {
 	var hs []*ClusterSnapshotHistory
-	if err := s.db.Where("cluster_id = ?", clusterID).Find(&hs).Error; err != nil {
+	if err := s.db.
+		Where("cluster_id = ?", clusterID).
+		Where("history_created_at >= ?", startTime).
+		Where("history_created_at < ?", endTime).Find(&hs).Error; err != nil {
 		return nil, err
 	}
 	return hs, nil

@@ -2,6 +2,7 @@ package store
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
@@ -86,20 +87,95 @@ func TestListClusterSnapshotsByTenantID(t *testing.T) {
 }
 
 func TestClusterSnapshotHistory(t *testing.T) {
+	ids := func(hs []*ClusterSnapshotHistory) []string {
+		var ids []string
+		for _, h := range hs {
+			ids = append(ids, h.ClusterID)
+		}
+		return ids
+	}
+
+	now := time.Now()
+
 	st, teardown := NewTest(t)
 	defer teardown()
 
-	err := st.CreateClusterSnapshotHistory(&ClusterSnapshotHistory{
-		ClusterID: "cid0",
-	})
-	assert.NoError(t, err)
+	hs := []*ClusterSnapshotHistory{
+		{
+			ClusterID:        "cid0",
+			HistoryCreatedAt: now,
+		},
+		{
+			ClusterID:        "cid0",
+			HistoryCreatedAt: now.Add(time.Hour),
+		},
+		{
+			ClusterID:        "cid1",
+			HistoryCreatedAt: now.Add(2 * time.Hour),
+		},
+	}
+	for _, h := range hs {
+		err := st.CreateClusterSnapshotHistory(h)
+		assert.NoError(t, err)
+	}
 
-	err = st.CreateClusterSnapshotHistory(&ClusterSnapshotHistory{
-		ClusterID: "cid0",
-	})
-	assert.NoError(t, err)
+	tcs := []struct {
+		name      string
+		cid       string
+		startTime time.Time
+		endTime   time.Time
+		want      []*ClusterSnapshotHistory
+	}{
+		{
+			name:      "all histories for cid0",
+			cid:       "cid0",
+			startTime: now.Add(-time.Hour),
+			endTime:   now.Add(2 * time.Hour),
+			want:      []*ClusterSnapshotHistory{hs[0], hs[1]},
+		},
+		{
+			name:      "all histories for cid1",
+			cid:       "cid1",
+			startTime: now.Add(-time.Hour),
+			endTime:   now.Add(3 * time.Hour),
+			want:      []*ClusterSnapshotHistory{hs[2]},
+		},
+		{
+			name:      "no histories for cid2",
+			cid:       "cid2",
+			startTime: now.Add(-time.Hour),
+			endTime:   now.Add(2 * time.Hour),
+			want:      []*ClusterSnapshotHistory{},
+		},
+		{
+			name:      "no histories before start time",
+			cid:       "cid0",
+			startTime: now.Add(2 * time.Hour),
+			endTime:   now.Add(3 * time.Hour),
+			want:      []*ClusterSnapshotHistory{},
+		},
+		{
+			name:      "no histories after end time",
+			cid:       "cid0",
+			startTime: now.Add(-time.Hour),
+			endTime:   now.Add(-time.Minute),
+			want:      []*ClusterSnapshotHistory{},
+		},
+		{
+			name:      "partial time range",
+			cid:       "cid0",
+			startTime: now.Add(-time.Hour),
+			endTime:   now.Add(time.Hour / 2),
+			want:      []*ClusterSnapshotHistory{hs[0]},
+		},
+	}
 
-	hs, err := st.ListClusterSnapshotHistories("cid0")
-	assert.NoError(t, err)
-	assert.Len(t, hs, 2)
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			hs, err := st.ListClusterSnapshotHistories(tc.cid, tc.startTime, tc.endTime)
+			assert.NoError(t, err)
+			assert.ElementsMatch(t, ids(tc.want), ids(hs))
+		})
+	}
+
 }

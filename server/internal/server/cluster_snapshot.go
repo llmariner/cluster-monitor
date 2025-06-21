@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"time"
 
@@ -18,6 +19,11 @@ func (s *S) ListClusterSnapshots(
 	ctx context.Context,
 	req *v1.ListClusterSnapshotsRequest,
 ) (*v1.ListClusterSnapshotsResponse, error) {
+	const (
+		defaultDuration = 24 * time.Hour
+		defaultInterval = time.Hour
+	)
+
 	authInfo, ok := auth.ExtractUserInfoFromContext(ctx)
 	if !ok {
 		return nil, status.Errorf(codes.Unauthenticated, "failed to extract user info from context")
@@ -33,15 +39,20 @@ func (s *S) ListClusterSnapshots(
 		return nil, status.Errorf(codes.NotFound, "no cluster snapshots found for tenant %s", authInfo.TenantID)
 	}
 
+	endTime := time.Now().Truncate(defaultInterval)
+	startTime := endTime.Add(-1 * defaultDuration)
+
 	// List all cluster snapshot histories for each snapshot.
-	var allHistories []*store.ClusterSnapshotHistory
+	var hs []*store.ClusterSnapshotHistory
 	for _, c := range cs {
-		histories, err := s.store.ListClusterSnapshotHistories(c.ClusterID)
+		chs, err := s.store.ListClusterSnapshotHistories(c.ClusterID, startTime.Add(defaultInterval), endTime)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to list cluster snapshot histories for cluster %s: %s", c.ClusterID, err)
 		}
-		allHistories = append(allHistories, histories...)
+		hs = append(hs, chs...)
 	}
+
+	fmt.Printf("FOUND %d snapshots for cluster\n", len(hs))
 
 	// Construct datapoints.
 	//
@@ -53,76 +64,69 @@ func (s *S) ListClusterSnapshots(
 	//    The grouping key is nil as we don't support grouping by any key yet.
 	//    Take average if there is more than one snapshot from the same cluster in the interval.
 
-	endTime := time.Now()
-	startTime := endTime.Add(-24 * time.Hour) // Default to the last 24 hours.
-
-	// Filter histories within the time range and sort by CreatedAt
-	var filteredHistories []*store.ClusterSnapshotHistory
-	for _, h := range allHistories {
-		if !h.CreatedAt.Before(startTime) && h.CreatedAt.Before(endTime) {
-			filteredHistories = append(filteredHistories, h)
-		}
-	}
-
-	sort.Slice(filteredHistories, func(i, j int) bool {
-		return filteredHistories[i].CreatedAt.Before(filteredHistories[j].CreatedAt)
+	sort.Slice(hs, func(i, j int) bool {
+		return hs[i].HistoryCreatedAt.Before(hs[j].HistoryCreatedAt)
 	})
 
-	// Group by 1-hour intervals
-	datapoints := make([]*v1.ListClusterSnapshotsResponse_Datapoint, 0)
-	hourInterval := time.Hour
-
 	// Group histories by hourly intervals in a single pass
-	intervalBuckets := make(map[time.Time][]*store.ClusterSnapshotHistory)
-	for _, h := range filteredHistories {
-		intervalStart := h.CreatedAt.Truncate(hourInterval)
-		intervalBuckets[intervalStart] = append(intervalBuckets[intervalStart], h)
+	intervalBuckets := make(map[int64][]*store.ClusterSnapshotHistory)
+	for _, h := range hs {
+		t := h.HistoryCreatedAt.Truncate(defaultInterval)
+		intervalBuckets[t.Unix()] = append(intervalBuckets[t.Unix()], h)
 	}
 
 	// Process each interval bucket
-	for current := startTime.Truncate(hourInterval); current.Before(endTime); current = current.Add(hourInterval) {
-		ihs := intervalBuckets[current]
-		var totalGPUCapacity int32
-		if len(ihs) > 0 {
-			// Group by cluster ID and calculate average GPU capacity per cluster
-			clusterGPUSums := make(map[string]int32)
-			clusterCounts := make(map[string]int)
-
-			for _, h := range ihs {
-				var snapshot workerv1.ClusterSnapshot
-				if err := proto.Unmarshal(h.Message, &snapshot); err != nil {
-					continue // Skip invalid messages
-				}
-
-				var totalGPU int32
-				for _, node := range snapshot.Nodes {
-					totalGPU += node.GpuCapacity
-				}
-
-				clusterGPUSums[h.ClusterID] += totalGPU
-				clusterCounts[h.ClusterID]++
-			}
-
-			// Calculate total GPU capacity (sum of averages from each cluster)
-			for clusterID, sum := range clusterGPUSums {
-				count := clusterCounts[clusterID]
-				totalGPUCapacity += sum / int32(count) // Average for this cluster
-			}
+	var dps []*v1.ListClusterSnapshotsResponse_Datapoint
+	for t := startTime; t.Before(endTime); t = t.Add(defaultInterval) {
+		hs := intervalBuckets[t.Unix()]
+		v, err := calculateTotalGPUCapacity(hs)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to calculate total gpu capacity: %s", err)
 		}
-
-		datapoint := &v1.ListClusterSnapshotsResponse_Datapoint{
-			Timestamp: current.Unix(),
+		dp := &v1.ListClusterSnapshotsResponse_Datapoint{
+			Timestamp: t.Unix(),
 			Values: []*v1.ListClusterSnapshotsResponse_Value{
 				{
 					GroupingKey: nil,
-					GpuCapacity: totalGPUCapacity,
+					GpuCapacity: v,
 				},
 			},
 		}
-		datapoints = append(datapoints, datapoint)
+		dps = append(dps, dp)
 	}
 
 	return &v1.ListClusterSnapshotsResponse{
-		Datapoints: datapoints,
+		Datapoints: dps,
 	}, nil
+}
+
+func calculateTotalGPUCapacity(hs []*store.ClusterSnapshotHistory) (int32, error) {
+	var totalGPUCapacity int32
+
+	// Group by cluster ID and calculate average GPU capacity per cluster
+	clusterGPUSums := make(map[string]int32)
+	clusterCounts := make(map[string]int)
+
+	for _, h := range hs {
+		var snapshot v1.ClusterSnapshot
+		if err := proto.Unmarshal(h.Message, &snapshot); err != nil {
+			return 0, err
+		}
+
+		var totalGPU int32
+		for _, node := range snapshot.Nodes {
+			totalGPU += node.GpuCapacity
+		}
+
+		clusterGPUSums[h.ClusterID] += totalGPU
+		clusterCounts[h.ClusterID]++
+	}
+
+	// Calculate total GPU capacity (sum of averages from each cluster)
+	for clusterID, sum := range clusterGPUSums {
+		count := clusterCounts[clusterID]
+		totalGPUCapacity += sum / int32(count) // Average for this cluster
+	}
+
+	return totalGPUCapacity, nil
 }
