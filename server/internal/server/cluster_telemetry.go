@@ -48,6 +48,7 @@ func (ws *WS) processClusterSnapshot(
 	cs := &store.ClusterSnapshot{
 		ClusterID: clusterInfo.ClusterID,
 		Name:      clusterInfo.ClusterName,
+		TenantID:  clusterInfo.TenantID,
 	}
 	if err := ws.store.CreateOrUpdateClusterSnapshot(cs); err != nil {
 		return err
