@@ -11,7 +11,7 @@ data:
     workerServiceGrpcPort: {{ .Values.workerServiceGrpcPort }}
     database:
       host: {{ required "global.database.host is required" .Values.global.database.host }}
-      port: {{ required "global.database.host is required" .Values.global.database.port }}
+      port: {{ required "global.database.port is required" .Values.global.database.port }}
       database: {{ .Values.database.database }}
       username: {{ required "global.database.username is required" .Values.global.database.username }}
       passwordEnvName: DB_PASSWORD
