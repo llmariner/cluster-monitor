@@ -51,7 +51,7 @@ spec:
   - http:
       paths:
       # TODO(kenji): Fix this.
-      - path: /llmariner.jobs.server.v1.JobWorkerService
+      - path: /llmariner.clustermonitor.server.v1.ClusterMonitorWorkerService
         pathType: Prefix
         backend:
           service:
