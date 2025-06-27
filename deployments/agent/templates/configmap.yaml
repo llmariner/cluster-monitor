@@ -12,7 +12,7 @@ data:
       initialDelay: {{ .Values.componentStatusSender.initialDelay }}
       interval: {{ .Values.componentStatusSender.interval }}
       clusterManagerServerWorkerServiceAddr: {{ .Values.global.worker.controlPlaneAddr | default .Values.componentStatusSender.clusterManagerServerWorkerServiceAddr }}
-    clusterMonitorServerWorkerServiceAddr: {{ .Values.clusterMonitorServerWorkerServiceAddr }}
+    clusterMonitorServerWorkerServiceAddr: {{ .Values.global.worker.controlPlaneAddr | default .Values.clusterMonitorServerWorkerServiceAddr }}
     worker:
       tls:
         enable: {{ .Values.global.worker.tls.enable }}
