@@ -76,18 +76,13 @@ func (s *S) ListClusterSnapshots(
 	var dps []*v1.ListClusterSnapshotsResponse_Datapoint
 	for t := startTime; t.Before(endTime); t = t.Add(defaultInterval) {
 		hs := intervalBuckets[t.Unix()]
-		v, err := calculateTotalGPUCapacity(hs)
+		v, err := calculateSnapshotValue(hs)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to calculate total gpu capacity: %s", err)
 		}
 		dp := &v1.ListClusterSnapshotsResponse_Datapoint{
 			Timestamp: t.Unix(),
-			Values: []*v1.ListClusterSnapshotsResponse_Value{
-				{
-					GroupingKey: nil,
-					GpuCapacity: v,
-				},
-			},
+			Values:    []*v1.ListClusterSnapshotsResponse_Value{v},
 		}
 		dps = append(dps, dp)
 	}
@@ -97,33 +92,41 @@ func (s *S) ListClusterSnapshots(
 	}, nil
 }
 
-func calculateTotalGPUCapacity(hs []*store.ClusterSnapshotHistory) (int32, error) {
-	var totalGPUCapacity int32
-
+func calculateSnapshotValue(hs []*store.ClusterSnapshotHistory) (*v1.ListClusterSnapshotsResponse_Value, error) {
 	// Group by cluster ID and calculate average GPU capacity per cluster
-	clusterGPUSums := make(map[string]int32)
-	clusterCounts := make(map[string]int)
+	type cluster struct {
+		count          int32
+		gpuCapacity    int32
+		memoryCapacity int64
+	}
+	clustersByID := make(map[string]*cluster)
 
 	for _, h := range hs {
 		var snapshot v1.ClusterSnapshot
 		if err := proto.Unmarshal(h.Message, &snapshot); err != nil {
-			return 0, err
+			return nil, err
 		}
 
-		var totalGPU int32
+		cl, ok := clustersByID[h.ClusterID]
+		if !ok {
+			cl = &cluster{}
+			clustersByID[h.ClusterID] = cl
+		}
+
+		cl.count++
 		for _, node := range snapshot.Nodes {
-			totalGPU += node.GpuCapacity
+			cl.gpuCapacity += node.GpuCapacity
+			cl.memoryCapacity += node.MemoryCapacity
 		}
-
-		clusterGPUSums[h.ClusterID] += totalGPU
-		clusterCounts[h.ClusterID]++
 	}
 
 	// Calculate total GPU capacity (sum of averages from each cluster)
-	for clusterID, sum := range clusterGPUSums {
-		count := clusterCounts[clusterID]
-		totalGPUCapacity += sum / int32(count) // Average for this cluster
+	var result v1.ListClusterSnapshotsResponse_Value
+	for _, c := range clustersByID {
+		// Add average for this cluster
+		result.GpuCapacity += c.gpuCapacity / c.count
+		result.MemoryCapacity += c.memoryCapacity / int64(c.count)
 	}
 
-	return totalGPUCapacity, nil
+	return &result, nil
 }

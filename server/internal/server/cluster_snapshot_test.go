@@ -15,12 +15,6 @@ import (
 )
 
 func TestListClusterSnapshots(t *testing.T) {
-	marshalProto := func(t *testing.T, msg *v1.ClusterSnapshot) []byte {
-		data, err := proto.Marshal(msg)
-		assert.NoError(t, err)
-		return data
-	}
-
 	now := time.Now()
 	nowT := now.Truncate(time.Hour)
 
@@ -65,7 +59,7 @@ func TestListClusterSnapshots(t *testing.T) {
 					{
 						ClusterID:        "cid0",
 						HistoryCreatedAt: now.Add(-3 * time.Hour),
-						Message: marshalProto(t, &v1.ClusterSnapshot{
+						Message: marshalSnapshotProto(t, &v1.ClusterSnapshot{
 							Nodes: []*v1.ClusterSnapshot_Node{
 								{
 									GpuCapacity: 1,
@@ -79,7 +73,7 @@ func TestListClusterSnapshots(t *testing.T) {
 					{
 						ClusterID:        "cid0",
 						HistoryCreatedAt: now.Add(-2 * time.Hour),
-						Message: marshalProto(t, &v1.ClusterSnapshot{
+						Message: marshalSnapshotProto(t, &v1.ClusterSnapshot{
 							Nodes: []*v1.ClusterSnapshot_Node{
 								{
 									GpuCapacity: 1,
@@ -93,7 +87,7 @@ func TestListClusterSnapshots(t *testing.T) {
 					{
 						ClusterID:        "cid0",
 						HistoryCreatedAt: now.Add(-2*time.Hour + 1*time.Minute),
-						Message: marshalProto(t, &v1.ClusterSnapshot{
+						Message: marshalSnapshotProto(t, &v1.ClusterSnapshot{
 							Nodes: []*v1.ClusterSnapshot_Node{
 								{
 									GpuCapacity: 1,
@@ -138,4 +132,93 @@ func TestListClusterSnapshots(t *testing.T) {
 		})
 	}
 
+}
+
+func TestCalculateSnapshotValue(t *testing.T) {
+	tcs := []struct {
+		name string
+		hs   []*store.ClusterSnapshotHistory
+		want *v1.ListClusterSnapshotsResponse_Value
+	}{
+		{
+			name: "empty history",
+			hs:   []*store.ClusterSnapshotHistory{},
+			want: &v1.ListClusterSnapshotsResponse_Value{
+				GpuCapacity: 0,
+			},
+		},
+		{
+			name: "single cluster",
+			hs: []*store.ClusterSnapshotHistory{
+				{
+					ClusterID: "cid0",
+					Message: marshalSnapshotProto(t, &v1.ClusterSnapshot{
+						Nodes: []*v1.ClusterSnapshot_Node{
+							{
+								GpuCapacity:    1,
+								MemoryCapacity: 1024,
+							},
+							{
+								GpuCapacity:    2,
+								MemoryCapacity: 2048,
+							},
+						},
+					}),
+				},
+			},
+			want: &v1.ListClusterSnapshotsResponse_Value{
+				GpuCapacity:    3,
+				MemoryCapacity: 3072,
+			},
+		},
+		{
+			name: "two cluster2",
+			hs: []*store.ClusterSnapshotHistory{
+				{
+					ClusterID: "cid0",
+					Message: marshalSnapshotProto(t, &v1.ClusterSnapshot{
+						Nodes: []*v1.ClusterSnapshot_Node{
+							{
+								GpuCapacity:    1,
+								MemoryCapacity: 1024,
+							},
+							{
+								GpuCapacity:    2,
+								MemoryCapacity: 2048,
+							},
+						},
+					}),
+				},
+				{
+					ClusterID: "cid1",
+					Message: marshalSnapshotProto(t, &v1.ClusterSnapshot{
+						Nodes: []*v1.ClusterSnapshot_Node{
+							{
+								GpuCapacity:    10,
+								MemoryCapacity: 10000,
+							},
+						},
+					}),
+				},
+			},
+			want: &v1.ListClusterSnapshotsResponse_Value{
+				GpuCapacity:    13,
+				MemoryCapacity: 13072,
+			},
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := calculateSnapshotValue(tc.hs)
+			assert.NoError(t, err)
+			assert.Truef(t, proto.Equal(got, tc.want), cmp.Diff(got, tc.want, protocmp.Transform()))
+		})
+	}
+}
+
+func marshalSnapshotProto(t *testing.T, msg *v1.ClusterSnapshot) []byte {
+	data, err := proto.Marshal(msg)
+	assert.NoError(t, err)
+	return data
 }

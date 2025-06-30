@@ -71,9 +71,17 @@
         "groupingKey": {
           "$ref": "#/definitions/ListClusterSnapshotsResponseGroupingKey"
         },
+        "nodeCount": {
+          "type": "integer",
+          "format": "int32"
+        },
         "gpuCapacity": {
           "type": "integer",
           "format": "int32"
+        },
+        "memoryCapacity": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },
