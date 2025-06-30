@@ -25,9 +25,15 @@ export type SendClusterTelemetryRequest = {
   payloads?: SendClusterTelemetryRequestPayload[]
 }
 
+export type ClusterSnapshotNodeNvidiaAttributes = {
+  product?: string
+}
+
 export type ClusterSnapshotNode = {
   name?: string
   gpu_capacity?: number
+  memory_capacity?: string
+  nvidia_attributes?: ClusterSnapshotNodeNvidiaAttributes
 }
 
 export type ClusterSnapshot = {

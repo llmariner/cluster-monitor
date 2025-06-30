@@ -26,6 +26,21 @@
         "gpuCapacity": {
           "type": "integer",
           "format": "int32"
+        },
+        "memoryCapacity": {
+          "type": "string",
+          "format": "int64"
+        },
+        "nvidiaAttributes": {
+          "$ref": "#/definitions/NodeNvidiaAttributes"
+        }
+      }
+    },
+    "NodeNvidiaAttributes": {
+      "type": "object",
+      "properties": {
+        "product": {
+          "type": "string"
         }
       }
     },

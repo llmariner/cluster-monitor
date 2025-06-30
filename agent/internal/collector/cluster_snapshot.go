@@ -2,6 +2,7 @@ package collector
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/go-logr/logr"
 	v1 "github.com/llmariner/cluster-monitor/api/v1"
@@ -56,9 +57,29 @@ func (c *clusterSnapshotCollector) buildSnapshot(ctx context.Context) (*v1.Clust
 			gpuCapacity = int32(v.ToDec().Value())
 		}
 
+		var gpuMemory int64
+		if v, ok := node.Labels["nvidia.com/gpu.memory"]; ok {
+			m, err := strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			gpuMemory = m * 1024 * 1024 // Convert to bytes
+		}
+
+		var product string
+		if v, ok := node.Labels["nvidia.com/gpu.product"]; ok {
+			product = v
+		} else {
+			product = "unknown"
+		}
+
 		nodes = append(nodes, &v1.ClusterSnapshot_Node{
-			Name:        node.Name,
-			GpuCapacity: gpuCapacity,
+			Name:           node.Name,
+			GpuCapacity:    gpuCapacity,
+			MemoryCapacity: gpuMemory,
+			NvidiaAttributes: &v1.ClusterSnapshot_Node_NvidiaAttributes{
+				Product: product,
+			},
 		})
 
 	}

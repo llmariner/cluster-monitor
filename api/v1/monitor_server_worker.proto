@@ -19,7 +19,12 @@ message ClusterSnapshot {
   message Node {
     string name = 1;
     int32 gpu_capacity = 2;
-    // TODO(kenji): GPU architecture and other information.
+    int64 memory_capacity = 3;
+
+    message NvidiaAttributes {
+      string product = 1;
+    }
+    NvidiaAttributes nvidia_attributes = 4;
   }
 
   repeated Node nodes = 1;

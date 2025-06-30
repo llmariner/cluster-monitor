@@ -34,6 +34,10 @@ func TestBuildSnapshot(t *testing.T) {
 				&corev1.Node{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "gpu-node",
+						Labels: map[string]string{
+							"nvidia.com/gpu.memory":  "143771",
+							"nvidia.com/gpu.product": "NVIDIA-H200",
+						},
 					},
 					Status: corev1.NodeStatus{
 						Capacity: corev1.ResourceList{
@@ -45,8 +49,12 @@ func TestBuildSnapshot(t *testing.T) {
 			want: &v1.ClusterSnapshot{
 				Nodes: []*v1.ClusterSnapshot_Node{
 					{
-						Name:        "gpu-node",
-						GpuCapacity: 4,
+						Name:           "gpu-node",
+						GpuCapacity:    4,
+						MemoryCapacity: 150754820096,
+						NvidiaAttributes: &v1.ClusterSnapshot_Node_NvidiaAttributes{
+							Product: "NVIDIA-H200",
+						},
 					},
 				},
 			},
