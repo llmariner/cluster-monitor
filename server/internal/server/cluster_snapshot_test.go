@@ -22,9 +22,21 @@ func TestListClusterSnapshots(t *testing.T) {
 		dps := make([]*v1.ListClusterSnapshotsResponse_Datapoint, 0, len(vals))
 		for i := 0; i < 24; i++ {
 			timestamp := nowT.Add(-time.Duration(24-i) * time.Hour).Unix()
+
+			gpuCapacity := vals[i]
+			nodeCount := int32(0)
+			if vals[i] > 0 {
+				nodeCount = 2
+			}
+
 			dps = append(dps, &v1.ListClusterSnapshotsResponse_Datapoint{
 				Timestamp: timestamp,
-				Values:    []*v1.ListClusterSnapshotsResponse_Value{{GpuCapacity: vals[i]}},
+				Values: []*v1.ListClusterSnapshotsResponse_Value{
+					{
+						GpuCapacity: gpuCapacity,
+						NodeCount:   nodeCount,
+					},
+				},
 			})
 		}
 		return dps
@@ -156,23 +168,24 @@ func TestCalculateSnapshotValue(t *testing.T) {
 						Nodes: []*v1.ClusterSnapshot_Node{
 							{
 								GpuCapacity:    1,
-								MemoryCapacity: 1024,
+								MemoryCapacity: 1024 * 1024 * 1024,
 							},
 							{
 								GpuCapacity:    2,
-								MemoryCapacity: 2048,
+								MemoryCapacity: 2 * 1024 * 1024 * 1024,
 							},
 						},
 					}),
 				},
 			},
 			want: &v1.ListClusterSnapshotsResponse_Value{
-				GpuCapacity:    3,
-				MemoryCapacity: 3072,
+				NodeCount:        2,
+				GpuCapacity:      3,
+				MemoryCapacityGb: 3,
 			},
 		},
 		{
-			name: "two cluster2",
+			name: "two clusters",
 			hs: []*store.ClusterSnapshotHistory{
 				{
 					ClusterID: "cid0",
@@ -180,11 +193,11 @@ func TestCalculateSnapshotValue(t *testing.T) {
 						Nodes: []*v1.ClusterSnapshot_Node{
 							{
 								GpuCapacity:    1,
-								MemoryCapacity: 1024,
+								MemoryCapacity: 1024 * 1024 * 1024,
 							},
 							{
 								GpuCapacity:    2,
-								MemoryCapacity: 2048,
+								MemoryCapacity: 2 * 1024 * 1024 * 1024,
 							},
 						},
 					}),
@@ -195,15 +208,16 @@ func TestCalculateSnapshotValue(t *testing.T) {
 						Nodes: []*v1.ClusterSnapshot_Node{
 							{
 								GpuCapacity:    10,
-								MemoryCapacity: 10000,
+								MemoryCapacity: 10 * 1024 * 1024 * 1024,
 							},
 						},
 					}),
 				},
 			},
 			want: &v1.ListClusterSnapshotsResponse_Value{
-				GpuCapacity:    13,
-				MemoryCapacity: 13072,
+				NodeCount:        3,
+				GpuCapacity:      13,
+				MemoryCapacityGb: 13,
 			},
 		},
 	}

@@ -23,7 +23,7 @@ export type ListClusterSnapshotsResponseValue = {
   grouping_key?: ListClusterSnapshotsResponseGroupingKey
   node_count?: number
   gpu_capacity?: number
-  memory_capacity?: string
+  memory_capacity_gb?: number
 }
 
 export type ListClusterSnapshotsResponseDatapoint = {

@@ -78,7 +78,7 @@ func (s *S) ListClusterSnapshots(
 		hs := intervalBuckets[t.Unix()]
 		v, err := calculateSnapshotValue(hs)
 		if err != nil {
-			return nil, status.Errorf(codes.Internal, "failed to calculate total gpu capacity: %s", err)
+			return nil, status.Errorf(codes.Internal, "failed to calculate snapshot value: %s", err)
 		}
 		dp := &v1.ListClusterSnapshotsResponse_Datapoint{
 			Timestamp: t.Unix(),
@@ -95,7 +95,8 @@ func (s *S) ListClusterSnapshots(
 func calculateSnapshotValue(hs []*store.ClusterSnapshotHistory) (*v1.ListClusterSnapshotsResponse_Value, error) {
 	// Group by cluster ID and calculate average GPU capacity per cluster
 	type cluster struct {
-		count          int32
+		hsCount        int32
+		nodeCount      int32
 		gpuCapacity    int32
 		memoryCapacity int64
 	}
@@ -113,7 +114,8 @@ func calculateSnapshotValue(hs []*store.ClusterSnapshotHistory) (*v1.ListCluster
 			clustersByID[h.ClusterID] = cl
 		}
 
-		cl.count++
+		cl.hsCount++
+		cl.nodeCount += int32(len(snapshot.Nodes))
 		for _, node := range snapshot.Nodes {
 			cl.gpuCapacity += node.GpuCapacity
 			cl.memoryCapacity += node.MemoryCapacity
@@ -124,8 +126,9 @@ func calculateSnapshotValue(hs []*store.ClusterSnapshotHistory) (*v1.ListCluster
 	var result v1.ListClusterSnapshotsResponse_Value
 	for _, c := range clustersByID {
 		// Add average for this cluster
-		result.GpuCapacity += c.gpuCapacity / c.count
-		result.MemoryCapacity += c.memoryCapacity / int64(c.count)
+		result.NodeCount += c.nodeCount / c.hsCount
+		result.GpuCapacity += c.gpuCapacity / c.hsCount
+		result.MemoryCapacityGb += int32(c.memoryCapacity / int64(c.hsCount) / 1024 / 1024 / 1024)
 	}
 
 	return &result, nil

@@ -79,9 +79,9 @@
           "type": "integer",
           "format": "int32"
         },
-        "memoryCapacity": {
-          "type": "string",
-          "format": "int64"
+        "memoryCapacityGb": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },
