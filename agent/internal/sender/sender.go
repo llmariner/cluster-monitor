@@ -59,7 +59,7 @@ func (s *S) Start(ctx context.Context) error {
 
 			s.logger.Info("Sending cluster telemetry")
 
-			ctx = auth.AppendWorkerAuthorization(ctx)
+			ctx := auth.AppendWorkerAuthorization(ctx)
 
 			// TODO(kenji): Implement buffering.
 			req := &v1.SendClusterTelemetryRequest{
