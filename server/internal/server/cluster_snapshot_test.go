@@ -333,6 +333,12 @@ func TestGetAllGroupingValues(t *testing.T) {
 			}),
 		},
 	}
+
+	clusterNamesByID := map[string]string{
+		"cid0": "cluster0",
+		"cid1": "cluster1",
+	}
+
 	tcs := []struct {
 		name    string
 		groupBy v1.ListClusterSnapshotsRequest_GroupBy
@@ -342,16 +348,16 @@ func TestGetAllGroupingValues(t *testing.T) {
 			name:    "no grouping",
 			groupBy: v1.ListClusterSnapshotsRequest_GROUP_BY_UNSPECIFIED,
 			want: []string{
-				"cid0",
-				"cid1",
+				"cluster0",
+				"cluster1",
 			},
 		},
 		{
 			name:    "group by cluster",
 			groupBy: v1.ListClusterSnapshotsRequest_GROUP_BY_CLUSTER,
 			want: []string{
-				"cid0",
-				"cid1",
+				"cluster0",
+				"cluster1",
 			},
 		},
 		{
@@ -366,7 +372,7 @@ func TestGetAllGroupingValues(t *testing.T) {
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := getAllGroupingValues(hs, tc.groupBy)
+			got, err := getAllGroupingValues(hs, clusterNamesByID, tc.groupBy)
 			assert.NoError(t, err)
 
 			assert.ElementsMatch(t, tc.want, got)

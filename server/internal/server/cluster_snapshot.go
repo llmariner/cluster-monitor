@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"time"
 
@@ -70,7 +71,12 @@ func (s *S) ListClusterSnapshots(
 		return hs[i].HistoryCreatedAt.Before(hs[j].HistoryCreatedAt)
 	})
 
-	allGvals, err := getAllGroupingValues(hs, req.GroupBy)
+	clusterNamesByID := map[string]string{}
+	for _, c := range cs {
+		clusterNamesByID[c.ClusterID] = c.Name
+	}
+
+	allGvals, err := getAllGroupingValues(hs, clusterNamesByID, req.GroupBy)
 	if err != nil {
 		return nil, err
 	}
@@ -189,6 +195,7 @@ func calculateSnapshotValues(
 
 func getAllGroupingValues(
 	hs []*store.ClusterSnapshotHistory,
+	clusterNamesByID map[string]string,
 	groupBy v1.ListClusterSnapshotsRequest_GroupBy,
 ) ([]string, error) {
 	gvalMap := map[string]bool{}
@@ -198,8 +205,13 @@ func getAllGroupingValues(
 			return nil, err
 		}
 
+		cname, ok := clusterNamesByID[h.ClusterID]
+		if !ok {
+			return nil, fmt.Errorf("no cluster name found for %q", h.ClusterID)
+		}
+
 		for _, node := range snapshot.Nodes {
-			v, err := getGroupingValue(h.ClusterID, node, groupBy)
+			v, err := getGroupingValue(cname, node, groupBy)
 			if err != nil {
 				return nil, err
 			}
@@ -216,13 +228,13 @@ func getAllGroupingValues(
 	return gvals, nil
 }
 
-func getGroupingValue(clusterID string, node *v1.ClusterSnapshot_Node, groupBy v1.ListClusterSnapshotsRequest_GroupBy) (string, error) {
+func getGroupingValue(clusterName string, node *v1.ClusterSnapshot_Node, groupBy v1.ListClusterSnapshotsRequest_GroupBy) (string, error) {
 	switch groupBy {
 	case v1.ListClusterSnapshotsRequest_GROUP_BY_UNSPECIFIED:
 		// Still use the cluster name (to average histories per cluster). It will be summed up later.
-		return clusterID, nil
+		return clusterName, nil
 	case v1.ListClusterSnapshotsRequest_GROUP_BY_CLUSTER:
-		return clusterID, nil
+		return clusterName, nil
 	case v1.ListClusterSnapshotsRequest_GROUP_BY_PRODUCT:
 		return node.NvidiaAttributes.Product, nil
 	default:
