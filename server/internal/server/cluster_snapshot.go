@@ -16,6 +16,8 @@ import (
 
 const (
 	toGB int64 = 1024 * 1024 * 1024
+
+	defaultInterval = time.Hour
 )
 
 // ListClusterSnapshots lists the cluster snapshots.
@@ -23,11 +25,6 @@ func (s *S) ListClusterSnapshots(
 	ctx context.Context,
 	req *v1.ListClusterSnapshotsRequest,
 ) (*v1.ListClusterSnapshotsResponse, error) {
-	const (
-		defaultDuration = 24 * time.Hour
-		defaultInterval = time.Hour
-	)
-
 	authInfo, ok := auth.ExtractUserInfoFromContext(ctx)
 	if !ok {
 		return nil, status.Errorf(codes.Unauthenticated, "failed to extract user info from context")
@@ -43,13 +40,15 @@ func (s *S) ListClusterSnapshots(
 		return nil, status.Errorf(codes.NotFound, "no cluster snapshots found for tenant %s", authInfo.TenantID)
 	}
 
-	endTime := time.Now().Truncate(defaultInterval)
-	startTime := endTime.Add(-1 * defaultDuration)
+	startTime, endTime, err := getStartEndTime(req.Filter, time.Now())
+	if err != nil {
+		return nil, err
+	}
 
 	// List all cluster snapshot histories for each snapshot.
 	var hs []*store.ClusterSnapshotHistory
 	for _, c := range cs {
-		chs, err := s.store.ListClusterSnapshotHistories(c.ClusterID, startTime.Add(-1*defaultInterval), endTime)
+		chs, err := s.store.ListClusterSnapshotHistories(c.ClusterID, startTime, endTime)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to list cluster snapshot histories for cluster %s: %s", c.ClusterID, err)
 		}
@@ -248,4 +247,43 @@ func getGroupingValue(
 		return "", status.Errorf(codes.InvalidArgument, "invalid value to groupBy: %v", groupBy)
 	}
 
+}
+
+func getStartEndTime(filter *v1.ListClusterSnapshotsRequest_Filter, now time.Time) (time.Time, time.Time, error) {
+	const defaultDuration = 24 * time.Hour
+
+	if filter == nil {
+		filter = &v1.ListClusterSnapshotsRequest_Filter{}
+	}
+
+	var (
+		startTime time.Time
+		endTime   time.Time
+	)
+
+	switch t := filter.EndTimestamp; {
+	case t > 0:
+		endTime = time.Unix(t, 0)
+	case t == 0:
+		endTime = now
+	default:
+		return time.Time{}, time.Time{}, status.Errorf(codes.InvalidArgument, "endTimestamp must be a non-negative value")
+	}
+	endTime = endTime.Truncate(defaultInterval)
+
+	switch t := filter.StartTimestamp; {
+	case t > 0:
+		startTime = time.Unix(t, 0)
+	case t == 0:
+		startTime = endTime.Add(-1 * defaultDuration)
+	default:
+		return time.Time{}, time.Time{}, status.Errorf(codes.InvalidArgument, "startTimestamp must be a non-negative value")
+	}
+	startTime = startTime.Truncate(defaultInterval)
+
+	if !startTime.Before(endTime) {
+		return time.Time{}, time.Time{}, status.Errorf(codes.InvalidArgument, "startTimestamp must be before endTimestamp")
+	}
+
+	return startTime, endTime, nil
 }

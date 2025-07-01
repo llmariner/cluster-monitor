@@ -392,6 +392,84 @@ func TestGetAllGroupingValues(t *testing.T) {
 	}
 }
 
+func TestGetStartEndTime(t *testing.T) {
+	now := time.Now()
+	nowT := now.Truncate(time.Hour)
+
+	tcs := []struct {
+		name      string
+		filter    *v1.ListClusterSnapshotsRequest_Filter
+		wantStart time.Time
+		wantEnd   time.Time
+		wantErr   bool
+	}{
+		{
+			name:      "no filter",
+			filter:    nil,
+			wantStart: nowT.Add(-24 * time.Hour),
+			wantEnd:   nowT,
+		},
+		{
+			name: "both times zero",
+			filter: &v1.ListClusterSnapshotsRequest_Filter{
+				StartTimestamp: 0,
+				EndTimestamp:   0,
+			},
+			wantStart: nowT.Add(-24 * time.Hour),
+			wantEnd:   nowT,
+		},
+		{
+			name: "both set",
+			filter: &v1.ListClusterSnapshotsRequest_Filter{
+				StartTimestamp: now.Add(-12 * time.Hour).Unix(),
+				EndTimestamp:   now.Add(-6 * time.Hour).Unix(),
+			},
+			wantStart: nowT.Add(-12 * time.Hour),
+			wantEnd:   nowT.Add(-6 * time.Hour),
+		},
+		{
+			name: "start time only",
+			filter: &v1.ListClusterSnapshotsRequest_Filter{
+				StartTimestamp: now.Add(-12 * time.Hour).Unix(),
+				EndTimestamp:   0,
+			},
+			wantStart: nowT.Add(-12 * time.Hour),
+			wantEnd:   nowT,
+		},
+		{
+			name: "end time only",
+			filter: &v1.ListClusterSnapshotsRequest_Filter{
+				StartTimestamp: 0,
+				EndTimestamp:   now.Add(-6 * time.Hour).Unix(),
+			},
+			wantStart: nowT.Add(-30 * time.Hour),
+			wantEnd:   nowT.Add(-6 * time.Hour),
+		},
+		{
+			name: "invalid time range",
+			filter: &v1.ListClusterSnapshotsRequest_Filter{
+				StartTimestamp: now.Add(-6 * time.Hour).Unix(),
+				EndTimestamp:   now.Add(-12 * time.Hour).Unix(),
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			gotStart, gotEnd, err := getStartEndTime(tc.filter, now)
+			if tc.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.Equal(t, tc.wantStart, gotStart)
+			assert.Equal(t, tc.wantEnd, gotEnd)
+		})
+	}
+
+}
+
 func marshalSnapshotProto(t *testing.T, msg *v1.ClusterSnapshot) []byte {
 	data, err := proto.Marshal(msg)
 	assert.NoError(t, err)

@@ -8,7 +8,10 @@ option go_package = "github.com/llmariner/cluster-monitor/api/v1";
 
 message ListClusterSnapshotsRequest {
   message Filter {
-    // TODO(kenji): Support start time, end time, cluster ID, etc.
+    // start_time specifies the start time of the snapshot histories (inclusive). Unix timestamp in seconds.
+    int64 start_timestamp = 1;
+    // end_time specifies the end time of the snapshot histories (exclusive). Unix timestamp in seconds.
+    int64 end_timestamp = 2;
   }
 
   Filter filter = 1;
@@ -32,7 +35,7 @@ message ListClusterSnapshotsResponse {
   }
 
   message Datapoint {
-    // timesecond is the Unix timestamp in seconds.
+    // timestamp is the Unix timestamp in seconds.
     int64 timestamp = 1;
     repeated Value values = 2;
   }

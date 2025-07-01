@@ -13,6 +13,8 @@ export enum ListClusterSnapshotsRequestGroupBy {
 }
 
 export type ListClusterSnapshotsRequestFilter = {
+  start_timestamp?: string
+  end_timestamp?: string
 }
 
 export type ListClusterSnapshotsRequest = {
