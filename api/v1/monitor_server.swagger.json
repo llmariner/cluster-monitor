@@ -33,6 +33,20 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "groupBy",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "GROUP_BY_UNSPECIFIED",
+              "GROUP_BY_CLUSTER",
+              "GROUP_BY_PRODUCT"
+            ],
+            "default": "GROUP_BY_UNSPECIFIED"
+          }
+        ],
         "tags": [
           "ClusterMonitorService"
         ]
@@ -44,7 +58,13 @@
       "type": "object"
     },
     "ListClusterSnapshotsRequestGroupBy": {
-      "type": "object"
+      "type": "string",
+      "enum": [
+        "GROUP_BY_UNSPECIFIED",
+        "GROUP_BY_CLUSTER",
+        "GROUP_BY_PRODUCT"
+      ],
+      "default": "GROUP_BY_UNSPECIFIED"
     },
     "ListClusterSnapshotsResponseDatapoint": {
       "type": "object",
@@ -62,14 +82,11 @@
         }
       }
     },
-    "ListClusterSnapshotsResponseGroupingKey": {
-      "type": "object"
-    },
     "ListClusterSnapshotsResponseValue": {
       "type": "object",
       "properties": {
-        "groupingKey": {
-          "$ref": "#/definitions/ListClusterSnapshotsResponseGroupingKey"
+        "groupingValue": {
+          "type": "string"
         },
         "nodeCount": {
           "type": "integer",

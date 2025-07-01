@@ -146,17 +146,23 @@ func TestListClusterSnapshots(t *testing.T) {
 
 }
 
-func TestCalculateSnapshotValue(t *testing.T) {
+func TestCalculateSnapshotValues(t *testing.T) {
 	tcs := []struct {
-		name string
-		hs   []*store.ClusterSnapshotHistory
-		want *v1.ListClusterSnapshotsResponse_Value
+		name             string
+		hs               []*store.ClusterSnapshotHistory
+		allGroupingVales []string
+		groupBy          v1.ListClusterSnapshotsRequest_GroupBy
+		want             []*v1.ListClusterSnapshotsResponse_Value
 	}{
 		{
-			name: "empty history",
-			hs:   []*store.ClusterSnapshotHistory{},
-			want: &v1.ListClusterSnapshotsResponse_Value{
-				GpuCapacity: 0,
+			name:             "empty history",
+			hs:               []*store.ClusterSnapshotHistory{},
+			allGroupingVales: []string{},
+			groupBy:          v1.ListClusterSnapshotsRequest_GROUP_BY_UNSPECIFIED,
+			want: []*v1.ListClusterSnapshotsResponse_Value{
+				{
+					GpuCapacity: 0,
+				},
 			},
 		},
 		{
@@ -178,10 +184,14 @@ func TestCalculateSnapshotValue(t *testing.T) {
 					}),
 				},
 			},
-			want: &v1.ListClusterSnapshotsResponse_Value{
-				NodeCount:        2,
-				GpuCapacity:      3,
-				MemoryCapacityGb: 3,
+			allGroupingVales: []string{"cid0"},
+			groupBy:          v1.ListClusterSnapshotsRequest_GROUP_BY_UNSPECIFIED,
+			want: []*v1.ListClusterSnapshotsResponse_Value{
+				{
+					NodeCount:        2,
+					GpuCapacity:      3,
+					MemoryCapacityGb: 3,
+				},
 			},
 		},
 		{
@@ -193,11 +203,11 @@ func TestCalculateSnapshotValue(t *testing.T) {
 						Nodes: []*v1.ClusterSnapshot_Node{
 							{
 								GpuCapacity:    1,
-								MemoryCapacity: 1024 * 1024 * 1024,
+								MemoryCapacity: toGB,
 							},
 							{
 								GpuCapacity:    2,
-								MemoryCapacity: 2 * 1024 * 1024 * 1024,
+								MemoryCapacity: 2 * toGB,
 							},
 						},
 					}),
@@ -208,25 +218,158 @@ func TestCalculateSnapshotValue(t *testing.T) {
 						Nodes: []*v1.ClusterSnapshot_Node{
 							{
 								GpuCapacity:    10,
-								MemoryCapacity: 10 * 1024 * 1024 * 1024,
+								MemoryCapacity: 10 * toGB,
 							},
 						},
 					}),
 				},
 			},
-			want: &v1.ListClusterSnapshotsResponse_Value{
-				NodeCount:        3,
-				GpuCapacity:      13,
-				MemoryCapacityGb: 13,
+			allGroupingVales: []string{"cid0", "cid1"},
+			groupBy:          v1.ListClusterSnapshotsRequest_GROUP_BY_UNSPECIFIED,
+			want: []*v1.ListClusterSnapshotsResponse_Value{
+				{
+					NodeCount:        3,
+					GpuCapacity:      13,
+					MemoryCapacityGb: 13,
+				},
+			},
+		},
+		{
+			name: "group by clusters",
+			hs: []*store.ClusterSnapshotHistory{
+				{
+					ClusterID: "cid0",
+					Message: marshalSnapshotProto(t, &v1.ClusterSnapshot{
+						Nodes: []*v1.ClusterSnapshot_Node{
+							{
+								GpuCapacity:    1,
+								MemoryCapacity: toGB,
+							},
+							{
+								GpuCapacity:    2,
+								MemoryCapacity: 2 * toGB,
+							},
+						},
+					}),
+				},
+				{
+					ClusterID: "cid1",
+					Message: marshalSnapshotProto(t, &v1.ClusterSnapshot{
+						Nodes: []*v1.ClusterSnapshot_Node{
+							{
+								GpuCapacity:    10,
+								MemoryCapacity: 10 * toGB,
+							},
+						},
+					}),
+				},
+			},
+			allGroupingVales: []string{"cid0", "cid1", "cid2"},
+			groupBy:          v1.ListClusterSnapshotsRequest_GROUP_BY_CLUSTER,
+			want: []*v1.ListClusterSnapshotsResponse_Value{
+				{
+					GroupingValue:    "cid0",
+					NodeCount:        2,
+					GpuCapacity:      3,
+					MemoryCapacityGb: 3,
+				},
+				{
+					GroupingValue:    "cid1",
+					NodeCount:        1,
+					GpuCapacity:      10,
+					MemoryCapacityGb: 10,
+				},
+				{
+					GroupingValue:    "cid2",
+					NodeCount:        0,
+					GpuCapacity:      0,
+					MemoryCapacityGb: 0,
+				},
 			},
 		},
 	}
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := calculateSnapshotValue(tc.hs)
+			got, err := calculateSnapshotValues(tc.hs, tc.allGroupingVales, tc.groupBy)
 			assert.NoError(t, err)
-			assert.Truef(t, proto.Equal(got, tc.want), cmp.Diff(got, tc.want, protocmp.Transform()))
+			assert.Len(t, got, len(tc.want))
+			for i, want := range tc.want {
+				assert.Truef(t, proto.Equal(got[i], want), cmp.Diff(got[i], want, protocmp.Transform()))
+			}
+		})
+	}
+}
+
+func TestGetAllGroupingValues(t *testing.T) {
+	hs := []*store.ClusterSnapshotHistory{
+		{
+			ClusterID: "cid0",
+			Message: marshalSnapshotProto(t, &v1.ClusterSnapshot{
+				Nodes: []*v1.ClusterSnapshot_Node{
+					{
+						NvidiaAttributes: &v1.ClusterSnapshot_Node_NvidiaAttributes{
+							Product: "product0",
+						},
+					},
+					{
+						NvidiaAttributes: &v1.ClusterSnapshot_Node_NvidiaAttributes{
+							Product: "product1",
+						},
+					},
+				},
+			}),
+		},
+		{
+			ClusterID: "cid1",
+			Message: marshalSnapshotProto(t, &v1.ClusterSnapshot{
+				Nodes: []*v1.ClusterSnapshot_Node{
+					{
+						NvidiaAttributes: &v1.ClusterSnapshot_Node_NvidiaAttributes{
+							Product: "product1",
+						},
+					},
+				},
+			}),
+		},
+	}
+	tcs := []struct {
+		name    string
+		groupBy v1.ListClusterSnapshotsRequest_GroupBy
+		want    []string
+	}{
+		{
+			name:    "no grouping",
+			groupBy: v1.ListClusterSnapshotsRequest_GROUP_BY_UNSPECIFIED,
+			want: []string{
+				"cid0",
+				"cid1",
+			},
+		},
+		{
+			name:    "group by cluster",
+			groupBy: v1.ListClusterSnapshotsRequest_GROUP_BY_CLUSTER,
+			want: []string{
+				"cid0",
+				"cid1",
+			},
+		},
+		{
+			name:    "group by product",
+			groupBy: v1.ListClusterSnapshotsRequest_GROUP_BY_PRODUCT,
+			want: []string{
+				"product0",
+				"product1",
+			},
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := getAllGroupingValues(hs, tc.groupBy)
+			assert.NoError(t, err)
+
+			assert.ElementsMatch(t, tc.want, got)
 		})
 	}
 }

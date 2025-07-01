@@ -13,20 +13,18 @@ message ListClusterSnapshotsRequest {
 
   Filter filter = 1;
 
-  message GroupBy {
-    // TODO(kenji): Implement (e.g., by cluster, by GPU architecture)
+  enum GroupBy {
+    GROUP_BY_UNSPECIFIED = 0;
+    GROUP_BY_CLUSTER = 1;
+    GROUP_BY_PRODUCT = 2;
   }
 
   GroupBy group_by = 2;
 }
 
 message ListClusterSnapshotsResponse {
-  message GroupingKey {
-    // TODO(kenji): Implement
-  }
-
   message Value {
-    GroupingKey grouping_key = 1;
+    string grouping_value = 1;
 
     int32 node_count = 2;
     int32 gpu_capacity = 3;

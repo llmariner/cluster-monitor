@@ -5,10 +5,14 @@
 */
 
 import * as fm from "../../fetch.pb"
-export type ListClusterSnapshotsRequestFilter = {
+
+export enum ListClusterSnapshotsRequestGroupBy {
+  GROUP_BY_UNSPECIFIED = "GROUP_BY_UNSPECIFIED",
+  GROUP_BY_CLUSTER = "GROUP_BY_CLUSTER",
+  GROUP_BY_PRODUCT = "GROUP_BY_PRODUCT",
 }
 
-export type ListClusterSnapshotsRequestGroupBy = {
+export type ListClusterSnapshotsRequestFilter = {
 }
 
 export type ListClusterSnapshotsRequest = {
@@ -16,11 +20,8 @@ export type ListClusterSnapshotsRequest = {
   group_by?: ListClusterSnapshotsRequestGroupBy
 }
 
-export type ListClusterSnapshotsResponseGroupingKey = {
-}
-
 export type ListClusterSnapshotsResponseValue = {
-  grouping_key?: ListClusterSnapshotsResponseGroupingKey
+  grouping_value?: string
   node_count?: number
   gpu_capacity?: number
   memory_capacity_gb?: number
