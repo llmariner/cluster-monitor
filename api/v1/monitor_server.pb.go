@@ -177,9 +177,9 @@ type ListClusterSnapshotsRequest_Filter struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// start_time specifies the start time of the snapshot histories (inclusive). Unix timestamp in seconds.
+	// start_timestamp specifies the start time of the snapshot histories (inclusive). Unix timestamp in seconds.
 	StartTimestamp int64 `protobuf:"varint,1,opt,name=start_timestamp,json=startTimestamp,proto3" json:"start_timestamp,omitempty"`
-	// end_time specifies the end time of the snapshot histories (exclusive). Unix timestamp in seconds.
+	// end_timestamp specifies the end time of the snapshot histories (exclusive). Unix timestamp in seconds.
 	EndTimestamp int64 `protobuf:"varint,2,opt,name=end_timestamp,json=endTimestamp,proto3" json:"end_timestamp,omitempty"`
 }
 

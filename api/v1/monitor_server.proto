@@ -8,9 +8,9 @@ option go_package = "github.com/llmariner/cluster-monitor/api/v1";
 
 message ListClusterSnapshotsRequest {
   message Filter {
-    // start_time specifies the start time of the snapshot histories (inclusive). Unix timestamp in seconds.
+    // start_timestamp specifies the start time of the snapshot histories (inclusive). Unix timestamp in seconds.
     int64 start_timestamp = 1;
-    // end_time specifies the end time of the snapshot histories (exclusive). Unix timestamp in seconds.
+    // end_timestamp specifies the end time of the snapshot histories (exclusive). Unix timestamp in seconds.
     int64 end_timestamp = 2;
   }
 

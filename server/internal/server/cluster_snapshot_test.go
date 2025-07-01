@@ -453,6 +453,20 @@ func TestGetStartEndTime(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "negative start time",
+			filter: &v1.ListClusterSnapshotsRequest_Filter{
+				StartTimestamp: -1,
+			},
+			wantErr: true,
+		},
+		{
+			name: "negative end time",
+			filter: &v1.ListClusterSnapshotsRequest_Filter{
+				EndTimestamp: -1,
+			},
+			wantErr: true,
+		},
 	}
 
 	for _, tc := range tcs {

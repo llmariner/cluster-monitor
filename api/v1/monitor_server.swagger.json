@@ -36,7 +36,7 @@
         "parameters": [
           {
             "name": "filter.startTimestamp",
-            "description": "start_time specifies the start time of the snapshot histories (inclusive). Unix timestamp in seconds.",
+            "description": "start_timestamp specifies the start time of the snapshot histories (inclusive). Unix timestamp in seconds.",
             "in": "query",
             "required": false,
             "type": "string",
@@ -44,7 +44,7 @@
           },
           {
             "name": "filter.endTimestamp",
-            "description": "end_time specifies the end time of the snapshot histories (exclusive). Unix timestamp in seconds.",
+            "description": "end_timestamp specifies the end time of the snapshot histories (exclusive). Unix timestamp in seconds.",
             "in": "query",
             "required": false,
             "type": "string",
@@ -76,12 +76,12 @@
         "startTimestamp": {
           "type": "string",
           "format": "int64",
-          "description": "start_time specifies the start time of the snapshot histories (inclusive). Unix timestamp in seconds."
+          "description": "start_timestamp specifies the start time of the snapshot histories (inclusive). Unix timestamp in seconds."
         },
         "endTimestamp": {
           "type": "string",
           "format": "int64",
-          "description": "end_time specifies the end time of the snapshot histories (exclusive). Unix timestamp in seconds."
+          "description": "end_timestamp specifies the end time of the snapshot histories (exclusive). Unix timestamp in seconds."
         }
       }
     },
