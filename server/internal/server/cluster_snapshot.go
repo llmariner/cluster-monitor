@@ -273,7 +273,8 @@ func getStartEndTime(filter *v1.ListClusterSnapshotsRequest_Filter, now time.Tim
 	case t > 0:
 		endTime = time.Unix(t, 0)
 	case t == 0:
-		endTime = now
+		// Set the endtime so that it includes the most recent hour after truncation.
+		endTime = now.Add(defaultInterval)
 	default:
 		return time.Time{}, time.Time{}, status.Errorf(codes.InvalidArgument, "endTimestamp must be a non-negative value")
 	}

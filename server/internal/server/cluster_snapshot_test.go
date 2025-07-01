@@ -21,7 +21,7 @@ func TestListClusterSnapshots(t *testing.T) {
 	generateDatapoints := func(vals []int32) []*v1.ListClusterSnapshotsResponse_Datapoint {
 		dps := make([]*v1.ListClusterSnapshotsResponse_Datapoint, 0, len(vals))
 		for i := 0; i < 24; i++ {
-			timestamp := nowT.Add(-time.Duration(24-i) * time.Hour).Unix()
+			timestamp := nowT.Add(time.Duration(i-23) * time.Hour).Unix()
 
 			gpuCapacity := vals[i]
 			nodeCount := int32(0)
@@ -122,7 +122,7 @@ func TestListClusterSnapshots(t *testing.T) {
 					0, 0, 0, 0, 0, 0,
 					0, 0, 0, 0, 0, 0,
 					0, 0, 0, 0, 0, 0,
-					0, 0, 0, 3, 3, 0,
+					0, 0, 3, 3, 0, 0,
 				}),
 			},
 		},
@@ -406,8 +406,8 @@ func TestGetStartEndTime(t *testing.T) {
 		{
 			name:      "no filter",
 			filter:    nil,
-			wantStart: nowT.Add(-24 * time.Hour),
-			wantEnd:   nowT,
+			wantStart: nowT.Add(-23 * time.Hour),
+			wantEnd:   nowT.Add(time.Hour),
 		},
 		{
 			name: "both times zero",
@@ -415,8 +415,8 @@ func TestGetStartEndTime(t *testing.T) {
 				StartTimestamp: 0,
 				EndTimestamp:   0,
 			},
-			wantStart: nowT.Add(-24 * time.Hour),
-			wantEnd:   nowT,
+			wantStart: nowT.Add(-23 * time.Hour),
+			wantEnd:   nowT.Add(time.Hour),
 		},
 		{
 			name: "both set",
@@ -434,7 +434,7 @@ func TestGetStartEndTime(t *testing.T) {
 				EndTimestamp:   0,
 			},
 			wantStart: nowT.Add(-12 * time.Hour),
-			wantEnd:   nowT,
+			wantEnd:   nowT.Add(time.Hour),
 		},
 		{
 			name: "end time only",
