@@ -173,6 +173,8 @@ func calculateSnapshotValues(
 			val.NodeCount += s.nodeCount
 			val.GpuCapacity += s.gpuCapacity
 			val.MemoryCapacityGb += int32(s.memoryCapacity / toGB)
+			val.GpuOccupancy += s.gpuOccupancy
+			val.PodCount += s.podCount
 		}
 		return []*v1.ListClusterSnapshotsResponse_Value{&val}, nil
 	}
