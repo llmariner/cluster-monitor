@@ -150,6 +150,7 @@ func TestCalculateSnapshotValues(t *testing.T) {
 	tcs := []struct {
 		name             string
 		hs               []*store.ClusterSnapshotHistory
+		clusterNamesByID map[string]string
 		allGroupingVales []string
 		groupBy          v1.ListClusterSnapshotsRequest_GroupBy
 		want             []*v1.ListClusterSnapshotsResponse_Value
@@ -185,7 +186,10 @@ func TestCalculateSnapshotValues(t *testing.T) {
 				},
 			},
 			allGroupingVales: []string{"cid0"},
-			groupBy:          v1.ListClusterSnapshotsRequest_GROUP_BY_UNSPECIFIED,
+			clusterNamesByID: map[string]string{
+				"cid0": "cluster0",
+			},
+			groupBy: v1.ListClusterSnapshotsRequest_GROUP_BY_UNSPECIFIED,
 			want: []*v1.ListClusterSnapshotsResponse_Value{
 				{
 					NodeCount:        2,
@@ -224,7 +228,11 @@ func TestCalculateSnapshotValues(t *testing.T) {
 					}),
 				},
 			},
-			allGroupingVales: []string{"cid0", "cid1"},
+			clusterNamesByID: map[string]string{
+				"cid0": "cluster0",
+				"cid1": "cluster1",
+			},
+			allGroupingVales: []string{"cluster0", "cluster1"},
 			groupBy:          v1.ListClusterSnapshotsRequest_GROUP_BY_UNSPECIFIED,
 			want: []*v1.ListClusterSnapshotsResponse_Value{
 				{
@@ -264,23 +272,27 @@ func TestCalculateSnapshotValues(t *testing.T) {
 					}),
 				},
 			},
-			allGroupingVales: []string{"cid0", "cid1", "cid2"},
+			clusterNamesByID: map[string]string{
+				"cid0": "cluster0",
+				"cid1": "cluster1",
+			},
+			allGroupingVales: []string{"cluster0", "cluster1", "cluster2"},
 			groupBy:          v1.ListClusterSnapshotsRequest_GROUP_BY_CLUSTER,
 			want: []*v1.ListClusterSnapshotsResponse_Value{
 				{
-					GroupingValue:    "cid0",
+					GroupingValue:    "cluster0",
 					NodeCount:        2,
 					GpuCapacity:      3,
 					MemoryCapacityGb: 3,
 				},
 				{
-					GroupingValue:    "cid1",
+					GroupingValue:    "cluster1",
 					NodeCount:        1,
 					GpuCapacity:      10,
 					MemoryCapacityGb: 10,
 				},
 				{
-					GroupingValue:    "cid2",
+					GroupingValue:    "cluster2",
 					NodeCount:        0,
 					GpuCapacity:      0,
 					MemoryCapacityGb: 0,
@@ -291,7 +303,7 @@ func TestCalculateSnapshotValues(t *testing.T) {
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := calculateSnapshotValues(tc.hs, tc.allGroupingVales, tc.groupBy)
+			got, err := calculateSnapshotValues(tc.hs, tc.groupBy, tc.clusterNamesByID, tc.allGroupingVales)
 			assert.NoError(t, err)
 			assert.Len(t, got, len(tc.want))
 			for i, want := range tc.want {
@@ -372,7 +384,7 @@ func TestGetAllGroupingValues(t *testing.T) {
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := getAllGroupingValues(hs, clusterNamesByID, tc.groupBy)
+			got, err := getAllGroupingValues(hs, tc.groupBy, clusterNamesByID)
 			assert.NoError(t, err)
 
 			assert.ElementsMatch(t, tc.want, got)

@@ -76,7 +76,7 @@ func (s *S) ListClusterSnapshots(
 		clusterNamesByID[c.ClusterID] = c.Name
 	}
 
-	allGvals, err := getAllGroupingValues(hs, clusterNamesByID, req.GroupBy)
+	allGvals, err := getAllGroupingValues(hs, req.GroupBy, clusterNamesByID)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +92,7 @@ func (s *S) ListClusterSnapshots(
 	var dps []*v1.ListClusterSnapshotsResponse_Datapoint
 	for t := startTime; t.Before(endTime); t = t.Add(defaultInterval) {
 		hs := intervalBuckets[t.Unix()]
-		vs, err := calculateSnapshotValues(hs, allGvals, req.GroupBy)
+		vs, err := calculateSnapshotValues(hs, req.GroupBy, clusterNamesByID, allGvals)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to calculate snapshot values: %s", err)
 		}
@@ -110,8 +110,9 @@ func (s *S) ListClusterSnapshots(
 
 func calculateSnapshotValues(
 	hs []*store.ClusterSnapshotHistory,
-	allGroupingVales []string,
 	groupBy v1.ListClusterSnapshotsRequest_GroupBy,
+	clusterNamesByID map[string]string,
+	allGroupingVales []string,
 ) ([]*v1.ListClusterSnapshotsResponse_Value, error) {
 	type stat struct {
 		hsCount        int32
@@ -131,7 +132,7 @@ func calculateSnapshotValues(
 		found := make(map[string]bool)
 
 		for _, node := range snapshot.Nodes {
-			v, err := getGroupingValue(h.ClusterID, node, groupBy)
+			v, err := getGroupingValue(h.ClusterID, node, groupBy, clusterNamesByID)
 			if err != nil {
 				return nil, err
 			}
@@ -195,8 +196,8 @@ func calculateSnapshotValues(
 
 func getAllGroupingValues(
 	hs []*store.ClusterSnapshotHistory,
-	clusterNamesByID map[string]string,
 	groupBy v1.ListClusterSnapshotsRequest_GroupBy,
+	clusterNamesByID map[string]string,
 ) ([]string, error) {
 	gvalMap := map[string]bool{}
 	for _, h := range hs {
@@ -205,13 +206,8 @@ func getAllGroupingValues(
 			return nil, err
 		}
 
-		cname, ok := clusterNamesByID[h.ClusterID]
-		if !ok {
-			return nil, fmt.Errorf("no cluster name found for %q", h.ClusterID)
-		}
-
 		for _, node := range snapshot.Nodes {
-			v, err := getGroupingValue(cname, node, groupBy)
+			v, err := getGroupingValue(h.ClusterID, node, groupBy, clusterNamesByID)
 			if err != nil {
 				return nil, err
 			}
@@ -228,13 +224,21 @@ func getAllGroupingValues(
 	return gvals, nil
 }
 
-func getGroupingValue(clusterName string, node *v1.ClusterSnapshot_Node, groupBy v1.ListClusterSnapshotsRequest_GroupBy) (string, error) {
+func getGroupingValue(
+	clusterID string,
+	node *v1.ClusterSnapshot_Node,
+	groupBy v1.ListClusterSnapshotsRequest_GroupBy,
+	clusterNamesByID map[string]string,
+) (string, error) {
 	switch groupBy {
-	case v1.ListClusterSnapshotsRequest_GROUP_BY_UNSPECIFIED:
-		// Still use the cluster name (to average histories per cluster). It will be summed up later.
-		return clusterName, nil
-	case v1.ListClusterSnapshotsRequest_GROUP_BY_CLUSTER:
-		return clusterName, nil
+	// Still use the cluster name for UNSPECIFIED (to average histories per cluster). It will be summed up later.
+	case v1.ListClusterSnapshotsRequest_GROUP_BY_UNSPECIFIED,
+		v1.ListClusterSnapshotsRequest_GROUP_BY_CLUSTER:
+		cname, ok := clusterNamesByID[clusterID]
+		if !ok {
+			return "", fmt.Errorf("no cluster name found for %q", clusterID)
+		}
+		return cname, nil
 	case v1.ListClusterSnapshotsRequest_GROUP_BY_PRODUCT:
 		if node.NvidiaAttributes == nil {
 			return "unknown", nil
