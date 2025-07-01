@@ -38,6 +38,7 @@ export type ListClusterSnapshotsResponseDatapoint = {
 
 export type ListClusterSnapshotsResponse = {
   datapoints?: ListClusterSnapshotsResponseDatapoint[]
+  cluster_count?: number
 }
 
 export class ClusterMonitorService {

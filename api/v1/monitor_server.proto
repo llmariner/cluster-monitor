@@ -45,6 +45,8 @@ message ListClusterSnapshotsResponse {
   }
 
   repeated Datapoint datapoints = 1;
+
+  int32 cluster_count = 2;
 }
 
 service ClusterMonitorService {

@@ -124,6 +124,7 @@ func TestListClusterSnapshots(t *testing.T) {
 					0, 0, 0, 0, 0, 0,
 					0, 0, 3, 3, 0, 0,
 				}),
+				ClusterCount: 2,
 			},
 		},
 	}

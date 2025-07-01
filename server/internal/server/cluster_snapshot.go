@@ -47,6 +47,7 @@ func (s *S) ListClusterSnapshots(
 
 	// List all cluster snapshot histories for each snapshot.
 	var hs []*store.ClusterSnapshotHistory
+	clusterNamesByID := map[string]string{}
 	for _, c := range cs {
 		chs, err := s.store.ListClusterSnapshotHistories(c.ClusterID, startTime, endTime)
 		if err != nil {
@@ -54,6 +55,7 @@ func (s *S) ListClusterSnapshots(
 		}
 
 		hs = append(hs, chs...)
+		clusterNamesByID[c.ClusterID] = c.Name
 	}
 
 	// Construct datapoints.
@@ -69,11 +71,6 @@ func (s *S) ListClusterSnapshots(
 	sort.Slice(hs, func(i, j int) bool {
 		return hs[i].HistoryCreatedAt.Before(hs[j].HistoryCreatedAt)
 	})
-
-	clusterNamesByID := map[string]string{}
-	for _, c := range cs {
-		clusterNamesByID[c.ClusterID] = c.Name
-	}
 
 	allGvals, err := getAllGroupingValues(hs, req.GroupBy, clusterNamesByID)
 	if err != nil {
@@ -103,7 +100,8 @@ func (s *S) ListClusterSnapshots(
 	}
 
 	return &v1.ListClusterSnapshotsResponse{
-		Datapoints: dps,
+		Datapoints:   dps,
+		ClusterCount: int32(len(clusterNamesByID)),
 	}, nil
 }
 
