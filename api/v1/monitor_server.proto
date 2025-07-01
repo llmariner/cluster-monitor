@@ -32,6 +32,10 @@ message ListClusterSnapshotsResponse {
     int32 node_count = 2;
     int32 gpu_capacity = 3;
     int32 memory_capacity_gb = 4;
+
+    // gpu_occupancy is the number of GPUs that are currently occupied (= requested by k8s pods).
+    int32 gpu_occupancy = 5;
+    int32 pod_count = 6;
   }
 
   message Datapoint {

@@ -127,6 +127,15 @@
         "memoryCapacityGb": {
           "type": "integer",
           "format": "int32"
+        },
+        "gpuOccupancy": {
+          "type": "integer",
+          "format": "int32",
+          "description": "gpu_occupancy is the number of GPUs that are currently occupied (= requested by k8s pods)."
+        },
+        "podCount": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },

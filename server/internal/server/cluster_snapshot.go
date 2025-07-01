@@ -118,6 +118,8 @@ func calculateSnapshotValues(
 		nodeCount      int32
 		gpuCapacity    int32
 		memoryCapacity int64
+		gpuOccupancy   int32
+		podCount       int32
 	}
 	stats := make(map[string]*stat)
 
@@ -150,6 +152,8 @@ func calculateSnapshotValues(
 			s.nodeCount++
 			s.gpuCapacity += node.GpuCapacity
 			s.memoryCapacity += node.MemoryCapacity
+			s.gpuOccupancy += node.GpuOccupancy
+			s.podCount += node.PodCount
 		}
 	}
 
@@ -158,6 +162,8 @@ func calculateSnapshotValues(
 		s.nodeCount /= s.hsCount
 		s.gpuCapacity /= s.hsCount
 		s.memoryCapacity /= int64(s.hsCount)
+		s.gpuOccupancy /= s.hsCount
+		s.podCount /= s.hsCount
 	}
 
 	if groupBy == v1.ListClusterSnapshotsRequest_GROUP_BY_UNSPECIFIED {
@@ -187,6 +193,8 @@ func calculateSnapshotValues(
 			NodeCount:        s.nodeCount,
 			GpuCapacity:      s.gpuCapacity,
 			MemoryCapacityGb: int32(s.memoryCapacity / toGB),
+			GpuOccupancy:     s.gpuOccupancy,
+			PodCount:         s.podCount,
 		})
 	}
 

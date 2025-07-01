@@ -27,6 +27,8 @@ export type ListClusterSnapshotsResponseValue = {
   node_count?: number
   gpu_capacity?: number
   memory_capacity_gb?: number
+  gpu_occupancy?: number
+  pod_count?: number
 }
 
 export type ListClusterSnapshotsResponseDatapoint = {
