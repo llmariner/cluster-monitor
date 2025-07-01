@@ -34,6 +34,8 @@ export type ClusterSnapshotNode = {
   gpu_capacity?: number
   memory_capacity?: string
   nvidia_attributes?: ClusterSnapshotNodeNvidiaAttributes
+  gpu_occupancy?: number
+  pod_count?: number
 }
 
 export type ClusterSnapshot = {

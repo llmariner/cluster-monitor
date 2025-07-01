@@ -33,6 +33,14 @@
         },
         "nvidiaAttributes": {
           "$ref": "#/definitions/NodeNvidiaAttributes"
+        },
+        "gpuOccupancy": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "podCount": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },

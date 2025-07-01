@@ -2,6 +2,7 @@ package collector
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/go-logr/logr"
@@ -47,11 +48,10 @@ func (c *clusterSnapshotCollector) buildSnapshot(ctx context.Context) (*v1.Clust
 	if err := c.k8sClient.List(ctx, nodeList); err != nil {
 		return nil, err
 	}
+	c.logger.Info("Found Nodes", "count", len(nodeList.Items))
 
-	var nodes []*v1.ClusterSnapshot_Node
+	nodesByName := make(map[string]*v1.ClusterSnapshot_Node)
 	for _, node := range nodeList.Items {
-		// TODO(kenji): Obtain other GPU attributes such as GPU memory,
-
 		var gpuCapacity int32
 		if v, ok := node.Status.Capacity[nvidiaGPU]; ok {
 			gpuCapacity = int32(v.ToDec().Value())
@@ -73,18 +73,70 @@ func (c *clusterSnapshotCollector) buildSnapshot(ctx context.Context) (*v1.Clust
 			product = "unknown"
 		}
 
-		nodes = append(nodes, &v1.ClusterSnapshot_Node{
+		nodesByName[node.Name] = &v1.ClusterSnapshot_Node{
 			Name:           node.Name,
 			GpuCapacity:    gpuCapacity,
 			MemoryCapacity: gpuMemory,
 			NvidiaAttributes: &v1.ClusterSnapshot_Node_NvidiaAttributes{
 				Product: product,
 			},
-		})
+		}
+	}
 
+	podList := &corev1.PodList{}
+	if err := c.k8sClient.List(ctx, podList); err != nil {
+		return nil, err
+	}
+	c.logger.Info("Found Pods", "count", len(podList.Items))
+	for _, pod := range podList.Items {
+		if pod.Status.Phase != corev1.PodRunning {
+			continue
+		}
+
+		v, err := requestedGPUs(&pod)
+		if err != nil {
+			return nil, fmt.Errorf("requested gpus for pod %s: %s", pod.Name, err)
+		}
+		if v == 0 {
+			continue
+		}
+
+		node, ok := nodesByName[pod.Spec.NodeName]
+		if !ok {
+			// TODO(kenji): Revisit. This can happen when a node is being deleted?
+			return nil, fmt.Errorf("node %s not found for pod %s", pod.Spec.NodeName, pod.Name)
+		}
+		node.GpuOccupancy += int32(v)
+		node.PodCount++
+	}
+
+	var nodes []*v1.ClusterSnapshot_Node
+	for _, n := range nodesByName {
+		nodes = append(nodes, n)
 	}
 
 	return &v1.ClusterSnapshot{
 		Nodes: nodes,
 	}, nil
+}
+
+func requestedGPUs(pod *corev1.Pod) (int, error) {
+	total := 0
+	for _, con := range pod.Spec.Containers {
+		limit := con.Resources.Limits
+		if limit == nil {
+			continue
+		}
+
+		v, ok := limit[nvidiaGPU]
+		if !ok {
+			continue
+		}
+		count, ok := v.AsInt64()
+		if !ok {
+			return -1, fmt.Errorf("asint64 for %v", v)
+		}
+		total += int(count)
+	}
+	return total, nil
 }

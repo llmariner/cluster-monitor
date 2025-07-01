@@ -45,6 +45,27 @@ func TestBuildSnapshot(t *testing.T) {
 						},
 					},
 				},
+				&corev1.Pod{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "pod1",
+						Namespace: "default",
+					},
+					Spec: corev1.PodSpec{
+						Containers: []corev1.Container{
+							{
+								Resources: corev1.ResourceRequirements{
+									Limits: corev1.ResourceList{
+										nvidiaGPU: resource.MustParse("2"),
+									},
+								},
+							},
+						},
+						NodeName: "gpu-node",
+					},
+					Status: corev1.PodStatus{
+						Phase: corev1.PodRunning,
+					},
+				},
 			},
 			want: &v1.ClusterSnapshot{
 				Nodes: []*v1.ClusterSnapshot_Node{
@@ -55,6 +76,8 @@ func TestBuildSnapshot(t *testing.T) {
 						NvidiaAttributes: &v1.ClusterSnapshot_Node_NvidiaAttributes{
 							Product: "NVIDIA-H200",
 						},
+						GpuOccupancy: 2,
+						PodCount:     1,
 					},
 				},
 			},
@@ -74,5 +97,72 @@ func TestBuildSnapshot(t *testing.T) {
 			assert.Truef(t, proto.Equal(got, tc.want), cmp.Diff(got, tc.want, protocmp.Transform()))
 		})
 	}
+}
 
+func TestRequestedGPUs(t *testing.T) {
+	tcs := []struct {
+		name string
+		pod  *corev1.Pod
+		want int
+	}{
+		{
+			name: "gpu pod",
+			pod: &corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "pod1",
+					Namespace: "default",
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Resources: corev1.ResourceRequirements{
+								Limits: corev1.ResourceList{
+									nvidiaGPU: resource.MustParse("1"),
+								},
+							},
+						},
+						{
+							Resources: corev1.ResourceRequirements{
+								Limits: corev1.ResourceList{
+									nvidiaGPU: resource.MustParse("2"),
+								},
+							},
+						},
+					},
+				},
+				Status: corev1.PodStatus{
+					Phase: corev1.PodRunning,
+				},
+			},
+			want: 3,
+		},
+		{
+			name: "non-gpu pod",
+			pod: &corev1.Pod{
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Resources: corev1.ResourceRequirements{
+								Limits: corev1.ResourceList{
+									"cpu": resource.MustParse("1"),
+								},
+							},
+						},
+					},
+				},
+				Status: corev1.PodStatus{
+					Phase: corev1.PodRunning,
+				},
+			},
+			want: 0,
+		},
+	}
+
+	for _, tc := range tcs {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := requestedGPUs(tc.pod)
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want, got)
+		})
+	}
 }

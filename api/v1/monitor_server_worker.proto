@@ -25,6 +25,9 @@ message ClusterSnapshot {
       string product = 1;
     }
     NvidiaAttributes nvidia_attributes = 4;
+
+    int32 gpu_occupancy = 5;
+    int32 pod_count = 6;
   }
 
   repeated Node nodes = 1;
