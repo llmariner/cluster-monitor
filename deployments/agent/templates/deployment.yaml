@@ -58,6 +58,13 @@ spec:
               key: {{ .key }}
         {{- end }}
         {{- end }}
+        {{- with .Values.clusterMonitorAgent.env }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.clusterMonitorAgent.envFrom }}
+        envFrom:
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- if .Values.livenessProbe.enabled }}
         livenessProbe:
           httpGet:
