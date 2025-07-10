@@ -58,12 +58,14 @@ spec:
               key: {{ .key }}
         {{- end }}
         {{- end }}
-        {{- with .Values.clusterMonitorAgent.env }}
+        {{- with index .Values "cluster-monitor-agent" }}
+          {{- with .env }}
         {{- toYaml . | nindent 8 }}
-        {{- end }}
-        {{- with .Values.clusterMonitorAgent.envFrom }}
+          {{- end }}
+          {{- with .envFrom }}
         envFrom:
         {{- toYaml . | nindent 8 }}
+          {{- end }}
         {{- end }}
         {{- if .Values.livenessProbe.enabled }}
         livenessProbe:

@@ -208,7 +208,7 @@ securityContext:
 
 # Additional environment variables for the cluster-monitor-agent container.
 # +docs:property
-# clusterMonitorAgent:
+# cluster-monitor-agent:
 #   env: []
 #   envFrom: []
 
