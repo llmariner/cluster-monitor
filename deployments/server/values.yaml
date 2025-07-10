@@ -255,9 +255,9 @@ securityContext:
 
 # Additional environment variables for the cluster-monitor-server container.
 # +docs:property
-# cluster-monitor-server:
-#   env: []
-#   envFrom: []
+# clusterMonitorServer:
+#  env: []
+#  envFrom: []
 
 # This field can be used as a condition when using it as a dependency.
 # This definition is only here as a placeholder such that it is

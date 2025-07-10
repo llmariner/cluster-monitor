@@ -23,7 +23,7 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-      - name: cluster-monitor-agent
+      - name: clusterMonitorAgent
         securityContext:
           {{- toYaml .Values.securityContext | nindent 12 }}
         image: "{{ .Values.image.repository }}:{{ default .Chart.Version .Values.version }}"
@@ -58,7 +58,7 @@ spec:
               key: {{ .key }}
         {{- end }}
         {{- end }}
-        {{- with index .Values "cluster-monitor-agent" }}
+        {{- with .Values.clusterMonitorAgent }}
           {{- with .env }}
         {{- toYaml . | nindent 8 }}
           {{- end }}
