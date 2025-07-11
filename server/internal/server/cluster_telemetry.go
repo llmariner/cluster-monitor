@@ -30,7 +30,11 @@ func (ws *WS) SendClusterTelemetry(
 		switch payload.MessageKind.(type) {
 		case *v1.SendClusterTelemetryRequest_Payload_ClusterSnapshot:
 			if err := ws.processClusterSnapshot(ctx, clusterInfo, payload.GetClusterSnapshot()); err != nil {
-				return nil, status.Errorf(codes.Internal, "failed to process cluster snapshot: %v", err)
+				return nil, status.Errorf(codes.Internal, "failed to process cluster snapshot: %s", err)
+			}
+		case *v1.SendClusterTelemetryRequest_Payload_GpuTelemetry:
+			if err := ws.processGPUTelemetry(ctx, clusterInfo, payload.GetGpuTelemetry()); err != nil {
+				return nil, status.Errorf(codes.Internal, "failed to process gpu telemetry: %s", err)
 			}
 		default:
 			return nil, status.Errorf(codes.InvalidArgument, "unsupported message kind: %T", payload.MessageKind)
@@ -68,5 +72,14 @@ func (ws *WS) processClusterSnapshot(
 		return err
 	}
 
+	return nil
+}
+
+func (ws *WS) processGPUTelemetry(
+	ctx context.Context,
+	clusterInfo *auth.ClusterInfo,
+	gtProto *v1.GpuTelemetry,
+) error {
+	// TODO(kenji): Implement this.
 	return nil
 }

@@ -17,33 +17,6 @@
   ],
   "paths": {},
   "definitions": {
-    "ClusterSnapshotNode": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "gpuCapacity": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "memoryCapacity": {
-          "type": "string",
-          "format": "int64"
-        },
-        "nvidiaAttributes": {
-          "$ref": "#/definitions/NodeNvidiaAttributes"
-        },
-        "gpuOccupancy": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "podCount": {
-          "type": "integer",
-          "format": "int32"
-        }
-      }
-    },
     "NodeNvidiaAttributes": {
       "type": "object",
       "properties": {
@@ -57,6 +30,9 @@
       "properties": {
         "clusterSnapshot": {
           "$ref": "#/definitions/v1ClusterSnapshot"
+        },
+        "gpuTelemetry": {
+          "$ref": "#/definitions/v1GpuTelemetry"
         }
       }
     },
@@ -93,8 +69,70 @@
         "nodes": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/ClusterSnapshotNode"
+            "$ref": "#/definitions/v1ClusterSnapshotNode"
           }
+        }
+      }
+    },
+    "v1ClusterSnapshotNode": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "gpuCapacity": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "memoryCapacity": {
+          "type": "string",
+          "format": "int64"
+        },
+        "nvidiaAttributes": {
+          "$ref": "#/definitions/NodeNvidiaAttributes"
+        },
+        "gpuOccupancy": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "podCount": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "v1GpuTelemetry": {
+      "type": "object",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1GpuTelemetryNode"
+          }
+        }
+      }
+    },
+    "v1GpuTelemetryNode": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "maxGpuUtilPercentage": {
+          "type": "number",
+          "format": "float"
+        },
+        "avgGpuUtilPercentage": {
+          "type": "number",
+          "format": "float"
+        },
+        "maxGpuMemoryUsed": {
+          "type": "string",
+          "format": "int64"
+        },
+        "avgGpuMemoryUsed": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },

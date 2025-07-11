@@ -9,6 +9,7 @@ message SendClusterTelemetryRequest {
   message Payload {
     oneof message_kind {
       ClusterSnapshot cluster_snapshot = 1;
+      GpuTelemetry gpu_telemetry = 2;
       // TODO(kenji): Add more (e.g., node GPU utilization)
     }
   }
@@ -33,7 +34,22 @@ message ClusterSnapshot {
   repeated Node nodes = 1;
 
   // TODO(kenji): Add more (e.g., GPU workload information).
+}
 
+message GpuTelemetry {
+  message Node {
+    string name = 1;
+
+    float max_gpu_util_percentage = 2;
+    float avg_gpu_util_percentage = 3;
+
+    int64 max_gpu_memory_used = 4;
+    int64 avg_gpu_memory_used = 5;
+  }
+
+  repeated Node nodes = 1;
+
+  // TODO(kenji): Add pod utilization information.
 }
 
 message SendClusterTelemetryResponse {

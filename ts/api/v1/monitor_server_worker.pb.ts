@@ -19,7 +19,7 @@ type BaseSendClusterTelemetryRequestPayload = {
 }
 
 export type SendClusterTelemetryRequestPayload = BaseSendClusterTelemetryRequestPayload
-  & OneOf<{ cluster_snapshot: ClusterSnapshot }>
+  & OneOf<{ cluster_snapshot: ClusterSnapshot; gpu_telemetry: GpuTelemetry }>
 
 export type SendClusterTelemetryRequest = {
   payloads?: SendClusterTelemetryRequestPayload[]
@@ -40,6 +40,18 @@ export type ClusterSnapshotNode = {
 
 export type ClusterSnapshot = {
   nodes?: ClusterSnapshotNode[]
+}
+
+export type GpuTelemetryNode = {
+  name?: string
+  max_gpu_util_percentage?: number
+  avg_gpu_util_percentage?: number
+  max_gpu_memory_used?: string
+  avg_gpu_memory_used?: string
+}
+
+export type GpuTelemetry = {
+  nodes?: GpuTelemetryNode[]
 }
 
 export type SendClusterTelemetryResponse = {
