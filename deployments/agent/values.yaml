@@ -39,6 +39,8 @@ clusterMonitorServerWorkerServiceAddr: cluster-monitor-server-worker-service-grp
 # Configuration for GPU telemetry.
 gpuTelemetry:
   # The URL of the Prometheus to collect GPU/DCGM telemetry.
+  # @schema
+  # format: uri
   prometheusUrl: ""
 
 componentStatusSender:
