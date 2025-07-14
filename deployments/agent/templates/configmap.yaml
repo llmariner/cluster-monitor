@@ -13,6 +13,8 @@ data:
       interval: {{ .Values.componentStatusSender.interval }}
       clusterManagerServerWorkerServiceAddr: {{ .Values.global.worker.controlPlaneAddr | default .Values.componentStatusSender.clusterManagerServerWorkerServiceAddr }}
     clusterMonitorServerWorkerServiceAddr: {{ .Values.global.worker.controlPlaneAddr | default .Values.clusterMonitorServerWorkerServiceAddr }}
+    gpuTelemetry:
+      prometheusUrl: {{ .Values.gpuTelemetry.prometheusUrl }}
     worker:
       tls:
         enable: {{ .Values.global.worker.tls.enable }}

@@ -35,9 +35,16 @@ type WorkerConfig struct {
 	TLS WorkerTLSConfig `yaml:"tls"`
 }
 
+// GPUTelemetryConfig is the GPU telemetry configuration.
+type GPUTelemetryConfig struct {
+	PrometheusURL string `yaml:"prometheusUrl"`
+}
+
 // Config is the configuration.
 type Config struct {
 	ClusterMonitorServerWorkerServiceAddr string `yaml:"clusterMonitorServerWorkerServiceAddr"`
+
+	GPUTelemetry GPUTelemetryConfig `yaml:"gpuTelemetry"`
 
 	KubernetesManager KubernetesManagerConfig `yaml:"kubernetesManager"`
 

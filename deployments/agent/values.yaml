@@ -36,6 +36,11 @@ global:
 # The address of the cluster-monitor-server to call worker services.
 clusterMonitorServerWorkerServiceAddr: cluster-monitor-server-worker-service-grpc:8082
 
+# Configuration for GPU telemetry.
+gpuTelemetry:
+  # The URL of the Prometheus to collect GPU/DCGM telemetry.
+  prometheusUrl: ""
+
 componentStatusSender:
   # The flag to enable sending component status to the cluster-manager-server.
   enable: true
