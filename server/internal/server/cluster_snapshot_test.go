@@ -19,7 +19,7 @@ func TestListClusterSnapshots(t *testing.T) {
 	nowT := now.Truncate(time.Hour)
 
 	generateDatapoints := func(vals []int32) []*v1.ListClusterSnapshotsResponse_Datapoint {
-		dps := make([]*v1.ListClusterSnapshotsResponse_Datapoint, 0, len(vals))
+		var dps []*v1.ListClusterSnapshotsResponse_Datapoint
 		for i := 0; i < 24; i++ {
 			timestamp := nowT.Add(time.Duration(i-24) * time.Hour).Unix()
 
