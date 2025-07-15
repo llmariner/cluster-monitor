@@ -36,16 +36,14 @@ func (c *Client) QueryDCGMMetric(ctx context.Context, metricName string, r v1.Ra
 		return nil, err
 	}
 
-	m := map[DCGMMetricKey][]float64{}
+	m := map[DCGMMetricKey][]model.SamplePair{}
 
 	for _, stream := range v {
 		k, err := NewDCGMMetricKey(stream.Metric)
 		if err != nil {
 			return nil, err
 		}
-		for _, sample := range stream.Values {
-			m[k] = append(m[k], float64(sample.Value))
-		}
+		m[k] = append(m[k], stream.Values...)
 	}
 
 	return &DCGMMetricSamples{

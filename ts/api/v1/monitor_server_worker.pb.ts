@@ -44,8 +44,8 @@ export type ClusterSnapshot = {
 
 export type GpuTelemetryNode = {
   name?: string
-  max_gpu_util_percentage?: number
-  avg_gpu_util_percentage?: number
+  max_gpu_used?: number
+  avg_gpu_used?: number
   max_gpu_memory_used?: string
   avg_gpu_memory_used?: string
 }

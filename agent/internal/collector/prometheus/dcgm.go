@@ -68,5 +68,5 @@ func NewDCGMMetricKey(m model.Metric) (DCGMMetricKey, error) {
 
 // DCGMMetricSamples holds samples for DCGM metrics.
 type DCGMMetricSamples struct {
-	ValuesByKey map[DCGMMetricKey][]float64
+	ValuesByKey map[DCGMMetricKey][]model.SamplePair
 }

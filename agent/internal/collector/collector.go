@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/llmariner/cluster-monitor/agent/internal/collector/prometheus"
 	v1 "github.com/llmariner/cluster-monitor/api/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -17,8 +18,9 @@ type collector interface {
 }
 
 // New returns a new collector instance.
-func New() *C {
+func New(prometheusURL string) *C {
 	return &C{
+		prometheusURL:  prometheusURL,
 		updateInterval: defaultUpdateInterval,
 		payloadCh:      make(chan *v1.SendClusterTelemetryRequest_Payload),
 	}
@@ -26,6 +28,8 @@ func New() *C {
 
 // C is a collector that collects telemetry data.
 type C struct {
+	prometheusURL string
+
 	collectors []collector
 
 	updateInterval time.Duration
@@ -44,6 +48,17 @@ func (c *C) SetupWithManager(mgr ctrl.Manager) error {
 	c.collectors = []collector{
 		newClusterSnapshotCollector(c.k8sClient, c.logger),
 		// TODO(kenji): Add more collectors.
+	}
+
+	if c.prometheusURL != "" {
+		c.logger.Info("Adding GPUTelemetryCollector", "prometheusURL", c.prometheusURL)
+		client, err := prometheus.NewClient(c.prometheusURL, c.logger)
+		if err != nil {
+			return err
+		}
+
+		cl := newGPUTelemetryCollector(client, c.k8sClient, defaultUpdateInterval, c.logger)
+		c.collectors = append(c.collectors, cl)
 	}
 
 	return mgr.Add(c)

@@ -40,8 +40,8 @@ message GpuTelemetry {
   message Node {
     string name = 1;
 
-    float max_gpu_util_percentage = 2;
-    float avg_gpu_util_percentage = 3;
+    float max_gpu_used = 2;
+    float avg_gpu_used = 3;
 
     int64 max_gpu_memory_used = 4;
     int64 avg_gpu_memory_used = 5;

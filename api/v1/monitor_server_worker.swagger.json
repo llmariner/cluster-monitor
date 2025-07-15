@@ -118,11 +118,11 @@
         "name": {
           "type": "string"
         },
-        "maxGpuUtilPercentage": {
+        "maxGpuUsed": {
           "type": "number",
           "format": "float"
         },
-        "avgGpuUtilPercentage": {
+        "avgGpuUsed": {
           "type": "number",
           "format": "float"
         },
