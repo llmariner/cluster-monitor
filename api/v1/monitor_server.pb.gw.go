@@ -67,6 +67,42 @@ func local_request_ClusterMonitorService_ListClusterSnapshots_0(ctx context.Cont
 
 }
 
+var (
+	filter_ClusterMonitorService_ListGpuUsages_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
+
+func request_ClusterMonitorService_ListGpuUsages_0(ctx context.Context, marshaler runtime.Marshaler, client ClusterMonitorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListGpuUsagesRequest
+	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ClusterMonitorService_ListGpuUsages_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.ListGpuUsages(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_ClusterMonitorService_ListGpuUsages_0(ctx context.Context, marshaler runtime.Marshaler, server ClusterMonitorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListGpuUsagesRequest
+	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ClusterMonitorService_ListGpuUsages_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.ListGpuUsages(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
 // RegisterClusterMonitorServiceHandlerServer registers the http handlers for service ClusterMonitorService to "mux".
 // UnaryRPC     :call ClusterMonitorServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -93,6 +129,29 @@ func RegisterClusterMonitorServiceHandlerServer(ctx context.Context, mux *runtim
 		}
 
 		forward_ClusterMonitorService_ListClusterSnapshots_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_ClusterMonitorService_ListGpuUsages_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/llmariner.clustermonitor.server.v1.ClusterMonitorService/ListGpuUsages", runtime.WithHTTPPathPattern("/v1/clustertelemetry/gpu-usages"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_ClusterMonitorService_ListGpuUsages_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_ClusterMonitorService_ListGpuUsages_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -157,13 +216,37 @@ func RegisterClusterMonitorServiceHandlerClient(ctx context.Context, mux *runtim
 
 	})
 
+	mux.Handle("GET", pattern_ClusterMonitorService_ListGpuUsages_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/llmariner.clustermonitor.server.v1.ClusterMonitorService/ListGpuUsages", runtime.WithHTTPPathPattern("/v1/clustertelemetry/gpu-usages"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_ClusterMonitorService_ListGpuUsages_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_ClusterMonitorService_ListGpuUsages_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	return nil
 }
 
 var (
 	pattern_ClusterMonitorService_ListClusterSnapshots_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "clustertelemetry", "clustersnapshots"}, ""))
+
+	pattern_ClusterMonitorService_ListGpuUsages_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "clustertelemetry", "gpu-usages"}, ""))
 )
 
 var (
 	forward_ClusterMonitorService_ListClusterSnapshots_0 = runtime.ForwardResponseMessage
+
+	forward_ClusterMonitorService_ListGpuUsages_0 = runtime.ForwardResponseMessage
 )

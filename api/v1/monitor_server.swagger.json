@@ -67,24 +67,49 @@
           "ClusterMonitorService"
         ]
       }
+    },
+    "/v1/clustertelemetry/gpu-usages": {
+      "get": {
+        "operationId": "ClusterMonitorService_ListGpuUsages",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListGpuUsagesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "filter.startTimestamp",
+            "description": "start_timestamp specifies the start time of the snapshot histories (inclusive). Unix timestamp in seconds.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "filter.endTimestamp",
+            "description": "end_timestamp specifies the end time of the snapshot histories (exclusive). Unix timestamp in seconds.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "ClusterMonitorService"
+        ]
+      }
     }
   },
   "definitions": {
-    "ListClusterSnapshotsRequestFilter": {
-      "type": "object",
-      "properties": {
-        "startTimestamp": {
-          "type": "string",
-          "format": "int64",
-          "description": "start_timestamp specifies the start time of the snapshot histories (inclusive). Unix timestamp in seconds."
-        },
-        "endTimestamp": {
-          "type": "string",
-          "format": "int64",
-          "description": "end_timestamp specifies the end time of the snapshot histories (exclusive). Unix timestamp in seconds."
-        }
-      }
-    },
     "ListClusterSnapshotsRequestGroupBy": {
       "type": "string",
       "enum": [
@@ -93,51 +118,6 @@
         "GROUP_BY_PRODUCT"
       ],
       "default": "GROUP_BY_UNSPECIFIED"
-    },
-    "ListClusterSnapshotsResponseDatapoint": {
-      "type": "object",
-      "properties": {
-        "timestamp": {
-          "type": "string",
-          "format": "int64",
-          "description": "timestamp is the Unix timestamp in seconds."
-        },
-        "values": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ListClusterSnapshotsResponseValue"
-          }
-        }
-      }
-    },
-    "ListClusterSnapshotsResponseValue": {
-      "type": "object",
-      "properties": {
-        "groupingValue": {
-          "type": "string"
-        },
-        "nodeCount": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "gpuCapacity": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "memoryCapacityGb": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "gpuOccupancy": {
-          "type": "integer",
-          "format": "int32",
-          "description": "gpu_occupancy is the number of GPUs that are currently occupied (= requested by k8s pods)."
-        },
-        "podCount": {
-          "type": "integer",
-          "format": "int32"
-        }
-      }
     },
     "protobufAny": {
       "type": "object",
@@ -172,12 +152,126 @@
         "datapoints": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/ListClusterSnapshotsResponseDatapoint"
+            "$ref": "#/definitions/v1ListClusterSnapshotsResponseDatapoint"
           }
         },
         "clusterCount": {
           "type": "integer",
           "format": "int32"
+        }
+      }
+    },
+    "v1ListClusterSnapshotsResponseDatapoint": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "int64",
+          "description": "timestamp is the Unix timestamp in seconds."
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1ListClusterSnapshotsResponseValue"
+          }
+        }
+      }
+    },
+    "v1ListClusterSnapshotsResponseValue": {
+      "type": "object",
+      "properties": {
+        "groupingValue": {
+          "type": "string"
+        },
+        "nodeCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "gpuCapacity": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "memoryCapacityGb": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "gpuOccupancy": {
+          "type": "integer",
+          "format": "int32",
+          "description": "gpu_occupancy is the number of GPUs that are currently occupied (= requested by k8s pods)."
+        },
+        "podCount": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "v1ListGpuUsagesResponse": {
+      "type": "object",
+      "properties": {
+        "datapoints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1ListGpuUsagesResponseDatapoint"
+          }
+        }
+      }
+    },
+    "v1ListGpuUsagesResponseDatapoint": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "int64",
+          "description": "timestamp is the Unix timestamp in seconds."
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1ListGpuUsagesResponseValue"
+          }
+        }
+      }
+    },
+    "v1ListGpuUsagesResponseValue": {
+      "type": "object",
+      "properties": {
+        "clusterName": {
+          "type": "string"
+        },
+        "nodeName": {
+          "type": "string"
+        },
+        "maxGpuUsed": {
+          "type": "number",
+          "format": "float"
+        },
+        "avgGpuUsed": {
+          "type": "number",
+          "format": "float"
+        },
+        "maxGpuMemoryUsedGb": {
+          "type": "number",
+          "format": "float"
+        },
+        "avgGpuMemoryUsedGb": {
+          "type": "number",
+          "format": "float"
+        }
+      }
+    },
+    "v1RequestFilter": {
+      "type": "object",
+      "properties": {
+        "startTimestamp": {
+          "type": "string",
+          "format": "int64",
+          "description": "start_timestamp specifies the start time of the snapshot histories (inclusive). Unix timestamp in seconds."
+        },
+        "endTimestamp": {
+          "type": "string",
+          "format": "int64",
+          "description": "end_timestamp specifies the end time of the snapshot histories (exclusive). Unix timestamp in seconds."
         }
       }
     }

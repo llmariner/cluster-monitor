@@ -19,6 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ClusterMonitorServiceClient interface {
 	ListClusterSnapshots(ctx context.Context, in *ListClusterSnapshotsRequest, opts ...grpc.CallOption) (*ListClusterSnapshotsResponse, error)
+	ListGpuUsages(ctx context.Context, in *ListGpuUsagesRequest, opts ...grpc.CallOption) (*ListGpuUsagesResponse, error)
 }
 
 type clusterMonitorServiceClient struct {
@@ -38,11 +39,21 @@ func (c *clusterMonitorServiceClient) ListClusterSnapshots(ctx context.Context, 
 	return out, nil
 }
 
+func (c *clusterMonitorServiceClient) ListGpuUsages(ctx context.Context, in *ListGpuUsagesRequest, opts ...grpc.CallOption) (*ListGpuUsagesResponse, error) {
+	out := new(ListGpuUsagesResponse)
+	err := c.cc.Invoke(ctx, "/llmariner.clustermonitor.server.v1.ClusterMonitorService/ListGpuUsages", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ClusterMonitorServiceServer is the server API for ClusterMonitorService service.
 // All implementations must embed UnimplementedClusterMonitorServiceServer
 // for forward compatibility
 type ClusterMonitorServiceServer interface {
 	ListClusterSnapshots(context.Context, *ListClusterSnapshotsRequest) (*ListClusterSnapshotsResponse, error)
+	ListGpuUsages(context.Context, *ListGpuUsagesRequest) (*ListGpuUsagesResponse, error)
 	mustEmbedUnimplementedClusterMonitorServiceServer()
 }
 
@@ -52,6 +63,9 @@ type UnimplementedClusterMonitorServiceServer struct {
 
 func (UnimplementedClusterMonitorServiceServer) ListClusterSnapshots(context.Context, *ListClusterSnapshotsRequest) (*ListClusterSnapshotsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListClusterSnapshots not implemented")
+}
+func (UnimplementedClusterMonitorServiceServer) ListGpuUsages(context.Context, *ListGpuUsagesRequest) (*ListGpuUsagesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListGpuUsages not implemented")
 }
 func (UnimplementedClusterMonitorServiceServer) mustEmbedUnimplementedClusterMonitorServiceServer() {}
 
@@ -84,6 +98,24 @@ func _ClusterMonitorService_ListClusterSnapshots_Handler(srv interface{}, ctx co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ClusterMonitorService_ListGpuUsages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListGpuUsagesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClusterMonitorServiceServer).ListGpuUsages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/llmariner.clustermonitor.server.v1.ClusterMonitorService/ListGpuUsages",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClusterMonitorServiceServer).ListGpuUsages(ctx, req.(*ListGpuUsagesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ClusterMonitorService_ServiceDesc is the grpc.ServiceDesc for ClusterMonitorService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -94,6 +126,10 @@ var ClusterMonitorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListClusterSnapshots",
 			Handler:    _ClusterMonitorService_ListClusterSnapshots_Handler,
+		},
+		{
+			MethodName: "ListGpuUsages",
+			Handler:    _ClusterMonitorService_ListGpuUsages_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

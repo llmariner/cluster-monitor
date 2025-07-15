@@ -257,11 +257,11 @@ func getGroupingValue(
 
 }
 
-func getStartEndTime(filter *v1.ListClusterSnapshotsRequest_Filter, now time.Time) (time.Time, time.Time, error) {
+func getStartEndTime(filter *v1.RequestFilter, now time.Time) (time.Time, time.Time, error) {
 	const defaultDuration = 24 * time.Hour
 
 	if filter == nil {
-		filter = &v1.ListClusterSnapshotsRequest_Filter{}
+		filter = &v1.RequestFilter{}
 	}
 
 	var (

@@ -399,7 +399,7 @@ func TestGetStartEndTime(t *testing.T) {
 
 	tcs := []struct {
 		name      string
-		filter    *v1.ListClusterSnapshotsRequest_Filter
+		filter    *v1.RequestFilter
 		wantStart time.Time
 		wantEnd   time.Time
 		wantErr   bool
@@ -412,7 +412,7 @@ func TestGetStartEndTime(t *testing.T) {
 		},
 		{
 			name: "both times zero",
-			filter: &v1.ListClusterSnapshotsRequest_Filter{
+			filter: &v1.RequestFilter{
 				StartTimestamp: 0,
 				EndTimestamp:   0,
 			},
@@ -421,7 +421,7 @@ func TestGetStartEndTime(t *testing.T) {
 		},
 		{
 			name: "both set",
-			filter: &v1.ListClusterSnapshotsRequest_Filter{
+			filter: &v1.RequestFilter{
 				StartTimestamp: now.Add(-12 * time.Hour).Unix(),
 				EndTimestamp:   now.Add(-6 * time.Hour).Unix(),
 			},
@@ -430,7 +430,7 @@ func TestGetStartEndTime(t *testing.T) {
 		},
 		{
 			name: "start time only",
-			filter: &v1.ListClusterSnapshotsRequest_Filter{
+			filter: &v1.RequestFilter{
 				StartTimestamp: now.Add(-12 * time.Hour).Unix(),
 				EndTimestamp:   0,
 			},
@@ -439,7 +439,7 @@ func TestGetStartEndTime(t *testing.T) {
 		},
 		{
 			name: "end time only",
-			filter: &v1.ListClusterSnapshotsRequest_Filter{
+			filter: &v1.RequestFilter{
 				StartTimestamp: 0,
 				EndTimestamp:   now.Add(-6 * time.Hour).Unix(),
 			},
@@ -448,7 +448,7 @@ func TestGetStartEndTime(t *testing.T) {
 		},
 		{
 			name: "invalid time range",
-			filter: &v1.ListClusterSnapshotsRequest_Filter{
+			filter: &v1.RequestFilter{
 				StartTimestamp: now.Add(-6 * time.Hour).Unix(),
 				EndTimestamp:   now.Add(-12 * time.Hour).Unix(),
 			},
@@ -456,14 +456,14 @@ func TestGetStartEndTime(t *testing.T) {
 		},
 		{
 			name: "negative start time",
-			filter: &v1.ListClusterSnapshotsRequest_Filter{
+			filter: &v1.RequestFilter{
 				StartTimestamp: -1,
 			},
 			wantErr: true,
 		},
 		{
 			name: "negative end time",
-			filter: &v1.ListClusterSnapshotsRequest_Filter{
+			filter: &v1.RequestFilter{
 				EndTimestamp: -1,
 			},
 			wantErr: true,
