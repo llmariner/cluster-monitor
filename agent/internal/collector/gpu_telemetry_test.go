@@ -75,10 +75,10 @@ func TestGPUTelemetryCollect(t *testing.T) {
 		w, ok := want[name]
 		assert.True(t, ok)
 		assert.Equal(t, w.Name, got.Name)
-		assert.InDelta(t, w.MaxGpuUsed, got.MaxGpuUsed, 1e-6, "MaxGpuUsed mismatch for node %s", name)
-		assert.InDelta(t, w.AvgGpuUsed, got.AvgGpuUsed, 1e-6, "AvgGpuUsed mismatch for node %s", name)
-		assert.InDelta(t, w.MaxGpuMemoryUsed, got.MaxGpuMemoryUsed, 1e-6, "MaxGpuMemoryUsed mismatch for node %s", name)
-		assert.InDelta(t, w.AvgGpuMemoryUsed, got.AvgGpuMemoryUsed, 1e-6, "AvgGpuMemoryUsed mismatch for node %s", name)
+		assert.InDelta(t, w.MaxGpuUsed, got.MaxGpuUsed, 1e-6)
+		assert.InDelta(t, w.AvgGpuUsed, got.AvgGpuUsed, 1e-6)
+		assert.InDelta(t, w.MaxGpuMemoryUsed, got.MaxGpuMemoryUsed, 1e-6)
+		assert.InDelta(t, w.AvgGpuMemoryUsed, got.AvgGpuMemoryUsed, 1e-6)
 	}
 }
 
@@ -194,8 +194,8 @@ func TestComputeMaxAvg(t *testing.T) {
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
 			gotMax, gotAvg := computeMaxAvg(tc.samplesByTime)
-			assert.InDelta(t, tc.wantMax, gotMax, 0.0001)
-			assert.InDelta(t, tc.wantAvg, gotAvg, 0.0001)
+			assert.InDelta(t, tc.wantMax, gotMax, 1e-6)
+			assert.InDelta(t, tc.wantAvg, gotAvg, 1e-6)
 		})
 	}
 }

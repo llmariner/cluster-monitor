@@ -27,8 +27,8 @@ func newGPUTelemetryCollector(
 	k8sClient client.Client,
 	metricsDuration time.Duration,
 	logger logr.Logger,
-) *gpuTelemetrytCollector {
-	return &gpuTelemetrytCollector{
+) *gpuTelemetryCollector {
+	return &gpuTelemetryCollector{
 		promClient:      promClient,
 		k8sClient:       k8sClient,
 		metricsDuration: metricsDuration,
@@ -36,7 +36,7 @@ func newGPUTelemetryCollector(
 	}
 }
 
-type gpuTelemetrytCollector struct {
+type gpuTelemetryCollector struct {
 	promClient prometheusClient
 	k8sClient  client.Client
 
@@ -45,7 +45,7 @@ type gpuTelemetrytCollector struct {
 	logger logr.Logger
 }
 
-func (c *gpuTelemetrytCollector) collect(ctx context.Context) (*v1.SendClusterTelemetryRequest_Payload, error) {
+func (c *gpuTelemetryCollector) collect(ctx context.Context) (*v1.SendClusterTelemetryRequest_Payload, error) {
 	c.logger.Info("Collecting GPU telemetry")
 
 	// TODO(kenji): We might want to add some adjustments to the time range to take into the delay
@@ -92,7 +92,7 @@ func (c *gpuTelemetrytCollector) collect(ctx context.Context) (*v1.SendClusterTe
 	}, nil
 }
 
-func (c *gpuTelemetrytCollector) buildHostnameToNodes(ctx context.Context) (map[string]*corev1.Node, error) {
+func (c *gpuTelemetryCollector) buildHostnameToNodes(ctx context.Context) (map[string]*corev1.Node, error) {
 	nodeList := &corev1.NodeList{}
 	if err := c.k8sClient.List(ctx, nodeList); err != nil {
 		return nil, err
@@ -134,6 +134,7 @@ func buildGPUTelemetryMessage(
 	nodesByHostname map[string]*corev1.Node,
 ) (*v1.GpuTelemetry, error) {
 	var nodes []*v1.GpuTelemetry_Node
+	// Collect unique hostnames from both GPU utilization and memory used samples
 	hostnames := make(map[string]struct{})
 	for hostname := range gpuUtilByHost {
 		hostnames[hostname] = struct{}{}
