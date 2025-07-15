@@ -85,12 +85,12 @@ func (ws *WS) processGPUTelemetry(
 		return err
 	}
 
-	csh := &store.GPUTelemetryHistory{
+	gsh := &store.GPUTelemetryHistory{
 		ClusterID:        clusterInfo.ClusterID,
 		Message:          msg,
-		HistoryCreatedAt: time.Now().UTC(),
+		HistoryCreatedAt: time.Now(),
 	}
-	if err := ws.store.CreateGPUTelemetryHistory(csh); err != nil {
+	if err := ws.store.CreateGPUTelemetryHistory(gsh); err != nil {
 		return err
 	}
 
