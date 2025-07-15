@@ -27,7 +27,7 @@ func (s *S) CreateGPUTelemetryHistory(c *GPUTelemetryHistory) error {
 	return nil
 }
 
-// ListGPUTelemetryHistories returns a list of cluster snapshots for the given cluster ID.
+// ListGPUTelemetryHistories returns a list of GPU telemetry histories for the given cluster ID.
 func (s *S) ListGPUTelemetryHistories(clusterID string, startTime, endTime time.Time) ([]*GPUTelemetryHistory, error) {
 	var hs []*GPUTelemetryHistory
 	if err := s.db.
