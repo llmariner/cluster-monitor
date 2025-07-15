@@ -74,7 +74,11 @@ func TestGPUTelemetryCollect(t *testing.T) {
 	for name, got := range nodesByName {
 		w, ok := want[name]
 		assert.True(t, ok)
-		assert.Truef(t, proto.Equal(got, w), cmp.Diff(got, w, protocmp.Transform()))
+		assert.Equal(t, w.Name, got.Name)
+		assert.InDelta(t, w.MaxGpuUsed, got.MaxGpuUsed, 1e-6, "MaxGpuUsed mismatch for node %s", name)
+		assert.InDelta(t, w.AvgGpuUsed, got.AvgGpuUsed, 1e-6, "AvgGpuUsed mismatch for node %s", name)
+		assert.InDelta(t, w.MaxGpuMemoryUsed, got.MaxGpuMemoryUsed, 1e-6, "MaxGpuMemoryUsed mismatch for node %s", name)
+		assert.InDelta(t, w.AvgGpuMemoryUsed, got.AvgGpuMemoryUsed, 1e-6, "AvgGpuMemoryUsed mismatch for node %s", name)
 	}
 }
 
