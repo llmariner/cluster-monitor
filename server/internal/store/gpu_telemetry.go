@@ -18,7 +18,7 @@ type GPUTelemetryHistory struct {
 	HistoryCreatedAt time.Time `gorm:"index"`
 }
 
-// CreateGPUTelemetryHistory creates a new cluster snapshot history.
+// CreateGPUTelemetryHistory creates a new GPU telemetry history.
 func (s *S) CreateGPUTelemetryHistory(c *GPUTelemetryHistory) error {
 	if err := s.db.Save(c).Error; err != nil {
 		return err
