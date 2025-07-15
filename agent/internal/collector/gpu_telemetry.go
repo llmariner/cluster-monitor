@@ -134,7 +134,15 @@ func buildGPUTelemetryMessage(
 	nodesByHostname map[string]*corev1.Node,
 ) (*v1.GpuTelemetry, error) {
 	var nodes []*v1.GpuTelemetry_Node
+	hostnames := make(map[string]struct{})
 	for hostname := range gpuUtilByHost {
+		hostnames[hostname] = struct{}{}
+	}
+	for hostname := range gpuMemUsedByHost {
+		hostnames[hostname] = struct{}{}
+	}
+
+	for hostname := range hostnames {
 		node, ok := nodesByHostname[hostname]
 		if !ok {
 			return nil, fmt.Errorf("node not found for hostname %s", hostname)
