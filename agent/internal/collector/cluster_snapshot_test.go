@@ -88,6 +88,7 @@ func TestBuildSnapshot(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			c := newClusterSnapshotCollector(
 				fake.NewFakeClient(tc.objs...),
+				nil,
 				testr.New(t),
 			)
 

@@ -88,7 +88,7 @@ func run(ctx context.Context, c *config.Config) error {
 		}()
 	}
 
-	col := collector.New(c.GPUTelemetry.PrometheusURL)
+	col := collector.New(c.GPUTelemetry.PrometheusURL, c.TargetNodeSelector)
 	if err := col.SetupWithManager(mgr); err != nil {
 		return err
 	}

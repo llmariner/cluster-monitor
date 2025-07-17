@@ -13,6 +13,10 @@ data:
       interval: {{ .Values.componentStatusSender.interval }}
       clusterManagerServerWorkerServiceAddr: {{ .Values.global.worker.controlPlaneAddr | default .Values.componentStatusSender.clusterManagerServerWorkerServiceAddr }}
     clusterMonitorServerWorkerServiceAddr: {{ .Values.global.worker.controlPlaneAddr | default .Values.clusterMonitorServerWorkerServiceAddr }}
+    {{- with .Values.targetNodeSelector }}
+    targetNodeSelector:
+      {{- toYaml . | nindent 8 }}
+    {{- end }}
     gpuTelemetry:
       prometheusUrl: {{ .Values.gpuTelemetry.prometheusUrl }}
     worker:

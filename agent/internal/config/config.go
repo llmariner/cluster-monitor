@@ -44,6 +44,8 @@ type GPUTelemetryConfig struct {
 type Config struct {
 	ClusterMonitorServerWorkerServiceAddr string `yaml:"clusterMonitorServerWorkerServiceAddr"`
 
+	TargetNodeSelector map[string]string `yaml:"targetNodeSelector"`
+
 	GPUTelemetry GPUTelemetryConfig `yaml:"gpuTelemetry"`
 
 	KubernetesManager KubernetesManagerConfig `yaml:"kubernetesManager"`

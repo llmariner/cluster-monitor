@@ -43,7 +43,7 @@ func TestGPUTelemetryCollect(t *testing.T) {
 		},
 	)
 
-	cl := newGPUTelemetryCollector(promClient, k8sClient, 10*time.Minute, logger)
+	cl := newGPUTelemetryCollector(promClient, k8sClient, nil, 10*time.Minute, logger)
 
 	got, err := cl.collect(context.Background())
 	assert.NoError(t, err)

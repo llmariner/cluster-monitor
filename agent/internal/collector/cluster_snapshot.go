@@ -8,6 +8,7 @@ import (
 	"github.com/go-logr/logr"
 	v1 "github.com/llmariner/cluster-monitor/api/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -17,17 +18,20 @@ const (
 
 func newClusterSnapshotCollector(
 	k8sClient client.Client,
+	targetNodeSelector map[string]string,
 	logger logr.Logger,
 ) *clusterSnapshotCollector {
 	return &clusterSnapshotCollector{
-		k8sClient: k8sClient,
-		logger:    logger.WithName("clusterSnapshot"),
+		k8sClient:          k8sClient,
+		targetNodeSelector: targetNodeSelector,
+		logger:             logger.WithName("clusterSnapshot"),
 	}
 }
 
 type clusterSnapshotCollector struct {
-	k8sClient client.Client
-	logger    logr.Logger
+	k8sClient          client.Client
+	targetNodeSelector map[string]string
+	logger             logr.Logger
 }
 
 func (c *clusterSnapshotCollector) collect(ctx context.Context) (*v1.SendClusterTelemetryRequest_Payload, error) {
@@ -45,7 +49,9 @@ func (c *clusterSnapshotCollector) collect(ctx context.Context) (*v1.SendCluster
 
 func (c *clusterSnapshotCollector) buildSnapshot(ctx context.Context) (*v1.ClusterSnapshot, error) {
 	nodeList := &corev1.NodeList{}
-	if err := c.k8sClient.List(ctx, nodeList); err != nil {
+	if err := c.k8sClient.List(ctx, nodeList, &client.ListOptions{
+		LabelSelector: labels.SelectorFromSet(c.targetNodeSelector),
+	}); err != nil {
 		return nil, err
 	}
 	c.logger.Info("Found Nodes", "count", len(nodeList.Items))

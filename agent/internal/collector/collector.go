@@ -18,17 +18,20 @@ type collector interface {
 }
 
 // New returns a new collector instance.
-func New(prometheusURL string) *C {
+func New(prometheusURL string, targetNodeSelector map[string]string) *C {
 	return &C{
-		prometheusURL:  prometheusURL,
-		updateInterval: defaultUpdateInterval,
-		payloadCh:      make(chan *v1.SendClusterTelemetryRequest_Payload),
+		prometheusURL:      prometheusURL,
+		targetNodeSelector: targetNodeSelector,
+		updateInterval:     defaultUpdateInterval,
+		payloadCh:          make(chan *v1.SendClusterTelemetryRequest_Payload),
 	}
 }
 
 // C is a collector that collects telemetry data.
 type C struct {
 	prometheusURL string
+
+	targetNodeSelector map[string]string
 
 	collectors []collector
 
@@ -46,7 +49,7 @@ func (c *C) SetupWithManager(mgr ctrl.Manager) error {
 	c.logger = mgr.GetLogger().WithName("collector")
 
 	c.collectors = []collector{
-		newClusterSnapshotCollector(c.k8sClient, c.logger),
+		newClusterSnapshotCollector(c.k8sClient, c.targetNodeSelector, c.logger),
 		// TODO(kenji): Add more collectors.
 	}
 
@@ -57,7 +60,7 @@ func (c *C) SetupWithManager(mgr ctrl.Manager) error {
 			return err
 		}
 
-		cl := newGPUTelemetryCollector(client, c.k8sClient, defaultUpdateInterval, c.logger)
+		cl := newGPUTelemetryCollector(client, c.k8sClient, c.targetNodeSelector, defaultUpdateInterval, c.logger)
 		c.collectors = append(c.collectors, cl)
 	}
 

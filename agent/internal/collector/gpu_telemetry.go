@@ -11,6 +11,7 @@ import (
 	pv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -25,20 +26,24 @@ type prometheusClient interface {
 func newGPUTelemetryCollector(
 	promClient prometheusClient,
 	k8sClient client.Client,
+	targetNodeSelector map[string]string,
 	metricsDuration time.Duration,
 	logger logr.Logger,
 ) *gpuTelemetryCollector {
 	return &gpuTelemetryCollector{
-		promClient:      promClient,
-		k8sClient:       k8sClient,
-		metricsDuration: metricsDuration,
-		logger:          logger.WithName("gpuTelemetry"),
+		promClient:         promClient,
+		k8sClient:          k8sClient,
+		targetNodeSelector: targetNodeSelector,
+		metricsDuration:    metricsDuration,
+		logger:             logger.WithName("gpuTelemetry"),
 	}
 }
 
 type gpuTelemetryCollector struct {
 	promClient prometheusClient
 	k8sClient  client.Client
+
+	targetNodeSelector map[string]string
 
 	metricsDuration time.Duration
 
@@ -94,7 +99,9 @@ func (c *gpuTelemetryCollector) collect(ctx context.Context) (*v1.SendClusterTel
 
 func (c *gpuTelemetryCollector) buildHostnameToNodes(ctx context.Context) (map[string]*corev1.Node, error) {
 	nodeList := &corev1.NodeList{}
-	if err := c.k8sClient.List(ctx, nodeList); err != nil {
+	if err := c.k8sClient.List(ctx, nodeList, &client.ListOptions{
+		LabelSelector: labels.SelectorFromSet(c.targetNodeSelector),
+	}); err != nil {
 		return nil, err
 	}
 

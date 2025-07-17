@@ -36,6 +36,10 @@ global:
 # The address of the cluster-monitor-server to call worker services.
 clusterMonitorServerWorkerServiceAddr: cluster-monitor-server-worker-service-grpc:8082
 
+# If specified, only nodes that satisfy the selector are the target of monitoring.
+# +docs:property
+# targetNodeSelector: {}
+
 # Configuration for GPU telemetry.
 gpuTelemetry:
   # The URL of the Prometheus to collect GPU/DCGM telemetry.
