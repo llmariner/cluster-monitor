@@ -15,13 +15,13 @@ import (
 )
 
 func TestListClusterSnapshots(t *testing.T) {
-	now := time.Now()
+	now := time.Date(2025, 7, 17, 11, 40, 0, 0, time.Local)
 	nowT := now.Truncate(time.Hour)
 
 	generateDatapoints := func(vals []int32) []*v1.ListClusterSnapshotsResponse_Datapoint {
 		dps := make([]*v1.ListClusterSnapshotsResponse_Datapoint, 0, len(vals))
 		for i := 0; i < 24; i++ {
-			timestamp := nowT.Add(time.Duration(i-23) * time.Hour).Unix()
+			timestamp := nowT.Add(time.Duration(i-24) * time.Hour).Unix()
 
 			gpuCapacity := vals[i]
 			nodeCount := int32(0)
@@ -116,13 +116,17 @@ func TestListClusterSnapshots(t *testing.T) {
 					assert.NoError(t, err)
 				}
 			},
-			req: &v1.ListClusterSnapshotsRequest{},
+			req: &v1.ListClusterSnapshotsRequest{
+				Filter: &v1.RequestFilter{
+					EndTimestamp: now.Unix(),
+				},
+			},
 			want: &v1.ListClusterSnapshotsResponse{
 				Datapoints: generateDatapoints([]int32{
 					0, 0, 0, 0, 0, 0,
 					0, 0, 0, 0, 0, 0,
 					0, 0, 0, 0, 0, 0,
-					0, 0, 3, 3, 0, 0,
+					0, 0, 0, 3, 3, 0,
 				}),
 				ClusterCount: 2,
 			},
@@ -144,7 +148,6 @@ func TestListClusterSnapshots(t *testing.T) {
 			assert.Truef(t, proto.Equal(got, tc.want), cmp.Diff(got, tc.want, protocmp.Transform()))
 		})
 	}
-
 }
 
 func TestCalculateSnapshotValues(t *testing.T) {
@@ -394,7 +397,7 @@ func TestGetAllGroupingValues(t *testing.T) {
 }
 
 func TestGetStartEndTime(t *testing.T) {
-	now := time.Now()
+	now := time.Date(2025, 7, 17, 11, 40, 0, 0, time.Local)
 	nowT := now.Truncate(time.Hour)
 
 	tcs := []struct {

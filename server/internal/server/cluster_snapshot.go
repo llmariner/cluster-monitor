@@ -45,6 +45,9 @@ func (s *S) ListClusterSnapshots(
 		return nil, err
 	}
 
+	s.log.Info("starttime = %s", startTime)
+	s.log.Info("endtime = %s", endTime)
+
 	// List all cluster snapshot histories for each snapshot.
 	var hs []*store.ClusterSnapshotHistory
 	clusterNamesByID := map[string]string{}
@@ -274,7 +277,10 @@ func getStartEndTime(filter *v1.RequestFilter, now time.Time) (time.Time, time.T
 		endTime = time.Unix(t, 0)
 	case t == 0:
 		// Set the endtime so that it includes the most recent hour after truncation.
-		endTime = now.Add(defaultInterval)
+		//
+		// But we also don't want to advance if there is no datapoint reported from the agent in
+		// the most recent hour. So we add half of the default interval to the current time.
+		endTime = now.Add(defaultInterval / 2)
 	default:
 		return time.Time{}, time.Time{}, status.Errorf(codes.InvalidArgument, "endTimestamp must be a non-negative value")
 	}
