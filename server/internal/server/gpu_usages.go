@@ -51,10 +51,6 @@ func (s *S) ListGpuUsages(
 		clusterNamesByID[c.ClusterID] = c.Name
 	}
 
-	sort.Slice(hs, func(i, j int) bool {
-		return hs[i].HistoryCreatedAt.Before(hs[j].HistoryCreatedAt)
-	})
-
 	allClusterNodes, err := getAllClusterNodes(hs, clusterNamesByID)
 	if err != nil {
 		return nil, err

@@ -59,20 +59,6 @@ func (s *S) ListClusterSnapshots(
 		clusterNamesByID[c.ClusterID] = c.Name
 	}
 
-	// Construct datapoints.
-	//
-	// 1. Sort cluster snapshot histories by its CreatedAt in ascending order.
-	// 2. Group them by an interval of 1 hour.
-	// 3. For each interval, construct a datapoint (v1.ListClusterSnapshotsResponse_Datapoint).
-	//    The timestamp of the datapoint is the start of the interval.
-	//    The values of the datapoint is currently sum of GPU capacities of all cluster snapshots in the interval.
-	//    The grouping key is nil as we don't support grouping by any key yet.
-	//    Take average if there is more than one snapshot from the same cluster in the interval.
-
-	sort.Slice(hs, func(i, j int) bool {
-		return hs[i].HistoryCreatedAt.Before(hs[j].HistoryCreatedAt)
-	})
-
 	allGvals, err := getAllGroupingValues(hs, req.GroupBy, clusterNamesByID)
 	if err != nil {
 		return nil, err
