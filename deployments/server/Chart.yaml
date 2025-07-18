@@ -4,8 +4,8 @@ description: The cluster monitor server stores telemetry collected by the agent.
 home: https://llmariner.ai/
 icon: https://raw.githubusercontent.com/llmariner/llmariner.github.io/refs/heads/main/assets/icons/logo.svg
 type: application
-version: 0.9.0
-appVersion: 0.9.0
+version: 0.10.0
+appVersion: 0.10.0
 sources:
   - https://github.com/llmariner/cluster-monitor
 keywords:
