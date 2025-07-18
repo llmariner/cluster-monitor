@@ -118,7 +118,8 @@ func TestListClusterSnapshots(t *testing.T) {
 			},
 			req: &v1.ListClusterSnapshotsRequest{
 				Filter: &v1.RequestFilter{
-					EndTimestamp: now.Unix(),
+					StartTimestamp: now.Add(-24 * time.Hour).Unix(),
+					EndTimestamp:   now.Unix(),
 				},
 			},
 			want: &v1.ListClusterSnapshotsResponse{
@@ -475,7 +476,7 @@ func TestGetStartEndTime(t *testing.T) {
 
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			gotStart, gotEnd, err := getStartEndTime(tc.filter, now)
+			gotStart, gotEnd, err := getStartEndTime(tc.filter, now, 24*time.Hour)
 			if tc.wantErr {
 				assert.Error(t, err)
 				return

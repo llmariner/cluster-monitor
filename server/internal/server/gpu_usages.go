@@ -34,7 +34,7 @@ func (s *S) ListGpuUsages(
 		return nil, status.Errorf(codes.NotFound, "no cluster snapshots found for tenant %s", authInfo.TenantID)
 	}
 
-	startTime, endTime, err := getStartEndTime(req.Filter, time.Now())
+	startTime, endTime, err := getStartEndTime(req.Filter, time.Now(), defaultDuration)
 	if err != nil {
 		return nil, err
 	}

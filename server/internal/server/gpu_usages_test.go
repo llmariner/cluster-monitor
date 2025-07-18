@@ -102,7 +102,8 @@ func TestListGpuUsagesTest(t *testing.T) {
 			},
 			req: &v1.ListGpuUsagesRequest{
 				Filter: &v1.RequestFilter{
-					EndTimestamp: now.Unix(),
+					StartTimestamp: now.Add(-24 * time.Hour).Unix(),
+					EndTimestamp:   now.Unix(),
 				},
 			},
 			want: &v1.ListGpuUsagesResponse{

@@ -18,6 +18,7 @@ const (
 	toGB int64 = 1024 * 1024 * 1024
 
 	defaultInterval = time.Hour
+	defaultDuration = 7 * time.Hour
 )
 
 // ListClusterSnapshots lists the cluster snapshots.
@@ -40,7 +41,7 @@ func (s *S) ListClusterSnapshots(
 		return nil, status.Errorf(codes.NotFound, "no cluster snapshots found for tenant %s", authInfo.TenantID)
 	}
 
-	startTime, endTime, err := getStartEndTime(req.Filter, time.Now())
+	startTime, endTime, err := getStartEndTime(req.Filter, time.Now(), defaultDuration)
 	if err != nil {
 		return nil, err
 	}
@@ -260,9 +261,7 @@ func getGroupingValue(
 
 }
 
-func getStartEndTime(filter *v1.RequestFilter, now time.Time) (time.Time, time.Time, error) {
-	const defaultDuration = 24 * time.Hour
-
+func getStartEndTime(filter *v1.RequestFilter, now time.Time, duration time.Duration) (time.Time, time.Time, error) {
 	if filter == nil {
 		filter = &v1.RequestFilter{}
 	}
@@ -290,7 +289,7 @@ func getStartEndTime(filter *v1.RequestFilter, now time.Time) (time.Time, time.T
 	case t > 0:
 		startTime = time.Unix(t, 0)
 	case t == 0:
-		startTime = endTime.Add(-1 * defaultDuration)
+		startTime = endTime.Add(-1 * duration)
 	default:
 		return time.Time{}, time.Time{}, status.Errorf(codes.InvalidArgument, "startTimestamp must be a non-negative value")
 	}
