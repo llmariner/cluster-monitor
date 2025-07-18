@@ -42,20 +42,11 @@ func NewDCGMMetricKey(m model.Metric) (DCGMMetricKey, error) {
 		return DCGMMetricKey{}, fmt.Errorf("label 'gpu' is not a valid integer: %s", gpuStr)
 	}
 
-	namespace, ok := m["namespace"]
-	if !ok {
-		return DCGMMetricKey{}, fmt.Errorf("label 'namespace' not found in label set: %v", m)
-	}
+	// The following labels are optional and may not be present for host-lelvel metrics.
 
-	pod, ok := m["exported_pod"]
-	if !ok {
-		return DCGMMetricKey{}, fmt.Errorf("label 'exported_pod' not found in label set: %v", m)
-	}
-
+	namespace := m["exported_namespace"]
+	pod := m["exported_pod"]
 	container, ok := m["exported_container"]
-	if !ok {
-		return DCGMMetricKey{}, fmt.Errorf("label 'exported_container' not found in label set: %v", m)
-	}
 
 	return DCGMMetricKey{
 		Hostname:  string(hostname),

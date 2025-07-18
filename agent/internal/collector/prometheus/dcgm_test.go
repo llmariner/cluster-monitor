@@ -19,7 +19,7 @@ func TestNewDCGMMetricKey(t *testing.T) {
 			m: model.Metric{
 				"Hostname":           "test-host",
 				"gpu":                "0",
-				"namespace":          "test-namespace",
+				"exported_namespace": "test-namespace",
 				"exported_pod":       "test-pod",
 				"exported_container": "test-container",
 			},
@@ -45,6 +45,7 @@ func TestNewDCGMMetricKey(t *testing.T) {
 			got, err := NewDCGMMetricKey(tc.m)
 			if tc.wantErr {
 				assert.Error(t, err)
+
 				return
 			}
 			assert.NoError(t, err)

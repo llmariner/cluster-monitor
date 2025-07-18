@@ -210,14 +210,17 @@ func (f *fakePromClient) QueryDCGMMetric(ctx context.Context, metricName string,
 	key0 := prometheus.DCGMMetricKey{
 		Hostname: "host1",
 		GPU:      0,
+		Pod:      "pod1",
 	}
 	key1 := prometheus.DCGMMetricKey{
 		Hostname: "host1",
 		GPU:      1,
+		Pod:      "pod2",
 	}
 	key2 := prometheus.DCGMMetricKey{
 		Hostname: "host2",
 		GPU:      2,
+		Pod:      "pod3",
 	}
 
 	switch metricName {

@@ -121,6 +121,11 @@ func buildSampleMapByHost(samples *prometheus.DCGMMetricSamples) map[string]map[
 	samplesByHost := make(map[string]map[model.Time][]float64)
 
 	for k, samples := range samples.ValuesByKey {
+		// Ignore host-level metrics (i.e., no pod labels).
+		if k.Pod == "" {
+			continue
+		}
+
 		m, ok := samplesByHost[k.Hostname]
 		if !ok {
 			m = make(map[model.Time][]float64)
