@@ -109,8 +109,8 @@ func (c *clusterSnapshotCollector) buildSnapshot(ctx context.Context) (*v1.Clust
 
 		node, ok := nodesByName[pod.Spec.NodeName]
 		if !ok {
-			// TODO(kenji): Revisit. This can happen when a node is being deleted?
-			return nil, fmt.Errorf("node %s not found for pod %s", pod.Spec.NodeName, pod.Name)
+			// This can happen when the node is not selected by the targetNodeSelector.
+			continue
 		}
 		node.GpuOccupancy += int32(v)
 		node.PodCount++
