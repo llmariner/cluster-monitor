@@ -18,7 +18,7 @@ const (
 	toGB int64 = 1024 * 1024 * 1024
 
 	defaultInterval = time.Hour
-	defaultDuration = 7 * time.Hour
+	defaultDuration = 7 * 24 * time.Hour
 )
 
 // ListClusterSnapshots lists the cluster snapshots.
