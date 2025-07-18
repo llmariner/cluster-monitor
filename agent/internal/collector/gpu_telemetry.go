@@ -167,11 +167,12 @@ func buildGPUTelemetryMessage(
 		}
 
 		nodes = append(nodes, &v1.GpuTelemetry_Node{
-			Name:             node.Name,
-			MaxGpuUsed:       float32(maxGPUUsed),
-			AvgGpuUsed:       float32(avgGPUUsed),
-			MaxGpuMemoryUsed: int64(maxGPUMemUsed),
-			AvgGpuMemoryUsed: int64(avgGPUMemUsed),
+			Name:       node.Name,
+			MaxGpuUsed: float32(maxGPUUsed),
+			AvgGpuUsed: float32(avgGPUUsed),
+			// Convert MB to bytes.
+			MaxGpuMemoryUsed: int64(maxGPUMemUsed * 1024 * 1024),
+			AvgGpuMemoryUsed: int64(avgGPUMemUsed * 1024 * 1024),
 		})
 	}
 
