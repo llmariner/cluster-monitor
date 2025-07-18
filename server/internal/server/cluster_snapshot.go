@@ -46,9 +46,6 @@ func (s *S) ListClusterSnapshots(
 		return nil, err
 	}
 
-	s.log.Info("starttime = %s", startTime)
-	s.log.Info("endtime = %s", endTime)
-
 	// List all cluster snapshot histories for each snapshot.
 	var hs []*store.ClusterSnapshotHistory
 	clusterNamesByID := map[string]string{}
