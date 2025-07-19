@@ -125,15 +125,15 @@ func TestBuildGPUTelemetryMessage(t *testing.T) {
 			want: map[string]*v1.GpuTelemetry_Node{
 				"node1": {
 					Name:             "node1",
-					MaxGpuUsed:       40.0,
-					AvgGpuUsed:       (10.0 + 20.0 + 40.0) / 2.0,
+					MaxGpuUsed:       40.0 / 100.0,
+					AvgGpuUsed:       (10.0 + 20.0 + 40.0) / 2.0 / 100.0,
 					MaxGpuMemoryUsed: (400.0) * 1024 * 1024,
 					AvgGpuMemoryUsed: (100.0 + 200.0 + 400.0) / 2.0 * 1024 * 1024,
 				},
 				"node2": {
 					Name:             "node2",
-					MaxGpuUsed:       5.0 + 15.0,
-					AvgGpuUsed:       5.0 + 15.0,
+					MaxGpuUsed:       (5.0 + 15.0) / 100.0,
+					AvgGpuUsed:       (5.0 + 15.0) / 100.0,
 					MaxGpuMemoryUsed: (50.0 + 150.0) * 1024 * 1024,
 					AvgGpuMemoryUsed: (50.0 + 150.0) * 1024 * 1024,
 				},
@@ -228,16 +228,16 @@ func (f *fakePromClient) QueryDCGMMetric(ctx context.Context, metricName string,
 		return &prometheus.DCGMMetricSamples{
 			ValuesByKey: map[prometheus.DCGMMetricKey][]model.SamplePair{
 				key0: {
-					{Timestamp: t0, Value: 0.1},
-					{Timestamp: t1, Value: 0.2},
+					{Timestamp: t0, Value: 10.0},
+					{Timestamp: t1, Value: 20.0},
 				},
 				key1: {
-					{Timestamp: t0, Value: 0.3},
-					{Timestamp: t1, Value: 0.4},
+					{Timestamp: t0, Value: 30.0},
+					{Timestamp: t1, Value: 40.0},
 				},
 				key2: {
-					{Timestamp: t0, Value: 0.5},
-					{Timestamp: t1, Value: 0.6},
+					{Timestamp: t0, Value: 50.0},
+					{Timestamp: t1, Value: 60.0},
 				},
 			},
 		}, nil
