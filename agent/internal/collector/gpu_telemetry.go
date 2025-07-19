@@ -2,7 +2,6 @@ package collector
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -158,7 +157,8 @@ func buildGPUTelemetryMessage(
 	for hostname := range hostnames {
 		node, ok := nodesByHostname[hostname]
 		if !ok {
-			return nil, fmt.Errorf("node not found for hostname %s", hostname)
+			// This can happen when the node is not selected by the targetNodeSelector.
+			continue
 		}
 
 		var maxGPUUsed, avgGPUUsed float64
